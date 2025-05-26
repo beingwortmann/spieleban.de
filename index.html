@@ -301,47 +301,46 @@
 
         <section class="projects">
 
-          <ul class="filter-list" id="filter-list-type">
-            <li class="filter-item">
-              <button class="active" data-filter-btn-type>Alle Typen</button>
-            </li>
-            <!-- Weitere Filter-Buttons für Typ werden dynamisch per JS hinzugefügt -->
+          <ul class="filter-list" data-filter-type-list>
+            <!-- Type filter buttons will be dynamically inserted here -->
           </ul>
-
-          <ul class="filter-list" id="filter-list-genre">
+          <ul class="filter-list" data-filter-genre-list>
+            <!-- Genre filter buttons will be dynamically inserted here -->
           </ul>
 
           <div class="filter-select-box">
             <button class="filter-select" data-select-type>
               <div class="select-value" data-select-value-type>Alle Typen</div>
               <div class="select-icon">
-                <span class="material-symbols-outlined">arrow_drop_down</span>
+                <span class="material-symbols-outlined">expand_more</span>
               </div>
             </button>
-            <ul class="select-list" id="select-list-type">
-              <li class="select-item">
-                <button data-select-item-type>Alle Typen</button>
-              </li>
-              <!-- Weitere Select-Items für Typ werden dynamisch per JS hinzugefügt -->
+            <ul class="select-list">
+              <!-- Type select options will be dynamically inserted here -->
             </ul>
           </div>
-           <div class="filter-select-box">
+
+          <div class="filter-select-box">
             <button class="filter-select" data-select-genre>
               <div class="select-value" data-select-value-genre>Alle Genres</div>
               <div class="select-icon">
-                <span class="material-symbols-outlined">arrow_drop_down</span>
+                <span class="material-symbols-outlined">expand_more</span>
               </div>
             </button>
-            <ul class="select-list" id="select-list-genre">
-                <li class="select-item"><button data-select-item-genre>Alle Genres</button></li>
-                <!-- Weitere Select-Items für Genre werden dynamisch per JS hinzugefügt -->
+            <ul class="select-list">
+              <!-- Genre select options will be dynamically inserted here -->
             </ul>
           </div>
 
-          <div id="no-results-message"></div>
+          <!-- <div id="no-results-message" style="display: none; text-align: center; margin-top: 20px;">
+            <p>Keine Projekte entsprechen den aktuellen Filtereinstellungen.</p>
+            <p>Versuche es mit:</p>
+            <button class="btn btn-secondary" onclick="resetFilters('type')">Alle Typen</button>
+            <button class="btn btn-secondary" onclick="resetFilters('genre')">Alle Genres</button>
+          </div> -->
 
           <ul class="project-list">
-            <!-- Projekt-Elemente werden hier dynamisch per JavaScript eingefügt -->
+            <!-- Projects will be dynamically inserted here -->
           </ul>
 
         </section>
