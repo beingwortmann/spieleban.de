@@ -273,11 +273,16 @@ async function loadProjects() {
       listItem.classList.add("project-item", "active");
       listItem.dataset.type = project.types.join(',').toLowerCase();
       listItem.dataset.genre = project.genres.join(',').toLowerCase();
-      listItem.dataset.id = project.id; // Store project ID
+      listItem.dataset.id = project.id;
 
       const projectTitleClass = project.markdownFile ? 'project-title has-markdown' : 'project-title';
 
-      listItem.innerHTML = `
+      // Create the anchor element to restore original structure
+      const anchor = document.createElement('a');
+      // Set a default href, its action will be prevented if markdownFile exists
+      anchor.href = "#"; 
+
+      anchor.innerHTML = `
         <figure class="project-img" data-project-id="${project.id}">
           <div class="project-item-icon-box">
             <ion-icon name="eye-outline"></ion-icon>
@@ -288,16 +293,18 @@ async function loadProjects() {
         <p class="project-category">${project.types.join(' / ')}</p>
         <p class="project-category">${project.genres.join(' / ')}</p>
       `;
+      
+      listItem.appendChild(anchor);
       projectListContainer.appendChild(listItem);
 
       if (project.markdownFile) {
-        const projectImage = listItem.querySelector('.project-img');
-        const projectTitle = listItem.querySelector('.project-title');
-
-        projectImage.addEventListener('click', () => openProjectModal(project.markdownFile));
-        projectTitle.addEventListener('click', () => openProjectModal(project.markdownFile));
-        projectImage.style.cursor = 'pointer';
-        projectTitle.style.cursor = 'pointer';
+        // Add click listener to the anchor tag for opening the modal
+        anchor.addEventListener('click', (event) => {
+          event.preventDefault(); // Prevent default link navigation
+          openProjectModal(project.markdownFile);
+        });
+        // The <a> tag itself will have a pointer cursor by default.
+        // The projectTitleClass on h3 handles the yellow color.
       }
     });
 
