@@ -453,87 +453,91 @@ const applyFilters = function () {
 };
 
 function updateFilterButtonsState() {
-    const allProjectItems = Array.from(document.querySelectorAll(".project-item")); // Get all project items, not just currently filtered ones
+    // const allProjectItems = Array.from(document.querySelectorAll(".project-item")); // Get all project items, not just currently filtered ones
 
     // Update Type Filters
     filterBtnType.forEach(btn => {
-        const typeValue = btn.textContent.toLowerCase();
-        if (typeValue === "alle typen") {
-            btn.classList.remove("disabled"); // "Alle Typen" should never be disabled
-            return;
-        }
-        const wouldHaveResults = allProjectItems.some(item => {
-            const itemTypes = item.dataset.type.toLowerCase();
-            const itemGenres = item.dataset.genre.toLowerCase();
-            const typeMatch = itemTypes.includes(typeValue);
-            const genreMatch = currentFilterGenre.toLowerCase() === "alle genres" || itemGenres.includes(currentFilterGenre.toLowerCase());
-            return typeMatch && genreMatch;
-        });
-        if (wouldHaveResults) {
-            btn.classList.remove("disabled");
-        } else {
-            btn.classList.add("disabled");
-        }
+        btn.classList.remove("disabled"); // Ensure all buttons are enabled
+        // const typeValue = btn.textContent.toLowerCase();
+        // if (typeValue === "alle typen") {
+        //     btn.classList.remove("disabled"); // "Alle Typen" should never be disabled
+        //     return;
+        // }
+        // const wouldHaveResults = allProjectItems.some(item => {
+        //     const itemTypes = item.dataset.type.toLowerCase();
+        //     const itemGenres = item.dataset.genre.toLowerCase();
+        //     const typeMatch = itemTypes.includes(typeValue);
+        //     const genreMatch = currentFilterGenre.toLowerCase() === "alle genres" || itemGenres.includes(currentFilterGenre.toLowerCase());
+        //     return typeMatch && genreMatch;
+        // });
+        // if (wouldHaveResults) {
+        //     btn.classList.remove("disabled");
+        // } else {
+        //     btn.classList.add("disabled");
+        // }
     });
     selectItemsType.forEach(item => { // Also update select items
-        const typeValue = item.textContent.toLowerCase();
-        if (typeValue === "alle typen") {
-            item.classList.remove("disabled");
-            return;
-        }
-        const wouldHaveResults = allProjectItems.some(projectItem => {
-            const itemTypes = projectItem.dataset.type.toLowerCase();
-            const itemGenres = projectItem.dataset.genre.toLowerCase();
-            const typeMatch = itemTypes.includes(typeValue);
-            const genreMatch = currentFilterGenre.toLowerCase() === "alle genres" || itemGenres.includes(currentFilterGenre.toLowerCase());
-            return typeMatch && genreMatch;
-        });
-        if (wouldHaveResults) {
-            item.classList.remove("disabled");
-        } else {
-            item.classList.add("disabled");
-        }
+        item.classList.remove("disabled"); // Ensure all items are enabled
+        // const typeValue = item.textContent.toLowerCase();
+        // if (typeValue === "alle typen") {
+        //     item.classList.remove("disabled");
+        //     return;
+        // }
+        // const wouldHaveResults = allProjectItems.some(projectItem => {
+        //     const itemTypes = projectItem.dataset.type.toLowerCase();
+        //     const itemGenres = projectItem.dataset.genre.toLowerCase();
+        //     const typeMatch = itemTypes.includes(typeValue);
+        //     const genreMatch = currentFilterGenre.toLowerCase() === "alle genres" || itemGenres.includes(currentFilterGenre.toLowerCase());
+        //     return typeMatch && genreMatch;
+        // });
+        // if (wouldHaveResults) {
+        //     item.classList.remove("disabled");
+        // } else {
+        //     item.classList.add("disabled");
+        // }
     });
 
 
     // Update Genre Filters
     filterBtnGenre.forEach(btn => {
-        const genreValue = btn.textContent.toLowerCase();
-        if (genreValue === "alle genres") {
-            btn.classList.remove("disabled"); // "Alle Genres" should never be disabled
-            return;
-        }
-        const wouldHaveResults = allProjectItems.some(item => {
-            const itemTypes = item.dataset.type.toLowerCase();
-            const itemGenres = item.dataset.genre.toLowerCase();
-            const typeMatch = currentFilterType.toLowerCase() === "alle typen" || itemTypes.includes(currentFilterType.toLowerCase());
-            const genreMatch = itemGenres.includes(genreValue);
-            return typeMatch && genreMatch;
-        });
-        if (wouldHaveResults) {
-            btn.classList.remove("disabled");
-        } else {
-            btn.classList.add("disabled");
-        }
+        btn.classList.remove("disabled"); // Ensure all buttons are enabled
+        // const genreValue = btn.textContent.toLowerCase();
+        // if (genreValue === "alle genres") {
+        //     btn.classList.remove("disabled"); // "Alle Genres" should never be disabled
+        //     return;
+        // }
+        // const wouldHaveResults = allProjectItems.some(item => {
+        //     const itemTypes = item.dataset.type.toLowerCase();
+        //     const itemGenres = item.dataset.genre.toLowerCase();
+        //     const typeMatch = currentFilterType.toLowerCase() === "alle typen" || itemTypes.includes(currentFilterType.toLowerCase());
+        //     const genreMatch = itemGenres.includes(genreValue);
+        //     return typeMatch && genreMatch;
+        // });
+        // if (wouldHaveResults) {
+        //     btn.classList.remove("disabled");
+        // } else {
+        //     btn.classList.add("disabled");
+        // }
     });
     selectItemsGenre.forEach(item => { // Also update select items
-        const genreValue = item.textContent.toLowerCase();
-        if (genreValue === "alle genres") {
-            item.classList.remove("disabled");
-            return;
-        }
-        const wouldHaveResults = allProjectItems.some(projectItem => {
-            const itemTypes = projectItem.dataset.type.toLowerCase();
-            const itemGenres = projectItem.dataset.genre.toLowerCase();
-            const typeMatch = currentFilterType.toLowerCase() === "alle typen" || itemTypes.includes(currentFilterType.toLowerCase());
-            const genreMatch = itemGenres.includes(genreValue);
-            return typeMatch && genreMatch;
-        });
-        if (wouldHaveResults) {
-            item.classList.remove("disabled");
-        } else {
-            item.classList.add("disabled");
-        }
+        item.classList.remove("disabled"); // Ensure all items are enabled
+        // const genreValue = item.textContent.toLowerCase();
+        // if (genreValue === "alle genres") {
+        //     item.classList.remove("disabled");
+        //     return;
+        // }
+        // const wouldHaveResults = allProjectItems.some(projectItem => {
+        //     const itemTypes = projectItem.dataset.type.toLowerCase();
+        //     const itemGenres = projectItem.dataset.genre.toLowerCase();
+        //     const typeMatch = currentFilterType.toLowerCase() === "alle typen" || itemTypes.includes(currentFilterType.toLowerCase());
+        //     const genreMatch = itemGenres.includes(genreValue);
+        //     return typeMatch && genreMatch;
+        // });
+        // if (wouldHaveResults) {
+        //     item.classList.remove("disabled");
+        // } else {
+        //     item.classList.add("disabled");
+        // }
     });
 }
 
