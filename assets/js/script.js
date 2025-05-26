@@ -158,6 +158,27 @@ for (let i = 0; i < navigationLinks.length; i++) {
   });
 }
 
+// --- Navigation-Logik zurück zum Original (Vergleich über data-page) ---
+// Vorherige navigationLinks/pages Deklaration entfernen!
+(function() {
+  var navigationLinks = document.querySelectorAll('[data-nav-link]');
+  var pages = document.querySelectorAll('[data-page]');
+  for (var i = 0; i < navigationLinks.length; i++) {
+    navigationLinks[i].addEventListener('click', function () {
+      for (var j = 0; j < pages.length; j++) {
+        if (pages[j].dataset.page === this.textContent.trim().toLowerCase().replace(/ /g, '')) {
+          pages[j].classList.add('active');
+          navigationLinks[j].classList.add('active');
+          window.scrollTo(0, 0);
+        } else {
+          pages[j].classList.remove('active');
+          navigationLinks[j].classList.remove('active');
+        }
+      }
+    });
+  }
+})();
+
 // Datenstruktur für Projekte und Veranstaltungen
 const projekte = [
   {
