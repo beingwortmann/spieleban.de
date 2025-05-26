@@ -141,6 +141,60 @@ function sortEventList(listContainer, ascending = true) {
 }
 
 
+// Team members data
+const teamMembers = [
+  { name: "Sebastian Motsch", role: "Game Design & Development", image: "./assets/images/BastiMemojiRemovedBG.png" },
+  { name: "Luise Motsch", role: "Illustration & Art Direction", image: "./assets/images/IsiMemojiRemovedBG.png" },
+  { name: "Jannik Wortmann", role: "Project Management & Narrative Design", image: "./assets/images/JannikMemojiRemovedBG.png" }
+];
+
+// Load and display team members
+function loadTeamMembers() {
+  const serviceListContainer = document.querySelector("article[data-page='über uns'] .service-list");
+
+  if (!serviceListContainer) {
+    console.error("Service list container not found for team members.");
+    return;
+  }
+
+  serviceListContainer.innerHTML = ''; // Clear existing, if any
+
+  teamMembers.forEach(member => {
+    const listItem = document.createElement("li");
+    listItem.classList.add("service-item");
+
+    const iconBox = document.createElement("div");
+    iconBox.classList.add("service-icon-box");
+
+    const img = document.createElement("img");
+    img.src = member.image;
+    img.alt = member.name;
+    img.width = 60; // Adjusted size for team member images
+
+    iconBox.appendChild(img);
+
+    const contentBox = document.createElement("div");
+    contentBox.classList.add("service-content-box");
+
+    const title = document.createElement("h4");
+    title.classList.add("h4", "service-item-title");
+    title.textContent = member.name;
+
+    const text = document.createElement("p");
+    text.classList.add("service-item-text");
+    text.textContent = member.role;
+
+    contentBox.appendChild(title);
+    contentBox.appendChild(text);
+
+    listItem.appendChild(iconBox);
+    listItem.appendChild(contentBox);
+
+    serviceListContainer.appendChild(listItem);
+  });
+}
+
+
 // Load and display projects and filters
 async function loadProjects() {
   try {
@@ -151,6 +205,7 @@ async function loadProjects() {
     const projects = await response.json();
 
     const projectListContainer = document.querySelector(".project-list");
+    const noResultsMessageContainer = document.getElementById("no-results-message");
     const filterListTypeContainer = document.getElementById("filter-list-type");
     const filterListGenreContainer = document.getElementById("filter-list-genre");
     const selectListTypeContainer = document.getElementById("select-list-type");
@@ -175,8 +230,13 @@ async function loadProjects() {
       const listItem = document.createElement('li');
       listItem.classList.add('project-item', 'active'); // Start with active, filterFunc will adjust
       listItem.dataset.filterItem = ''; // Mark as a filterable item
-      listItem.dataset.categoryType = project.types.join(' ').toLowerCase();
-      listItem.dataset.categoryGenre = project.genres.join(' ').toLowerCase();
+      // Normalisiere Typen und Genres für zuverlässiges Filtern
+      listItem.dataset.categoryType = project.types
+        .map(type => type.toLowerCase().replace(/\\s+/g, '-'))
+        .join('%%');
+      listItem.dataset.categoryGenre = project.genres
+        .map(genre => genre.toLowerCase().replace(/\\s+/g, '-'))
+        .join('%%');
 
       const link = document.createElement('a');
       link.href = "#"; // Or project.link if available
@@ -375,44 +435,117 @@ const filterFunc = function (selectedValue, filterCategory) {
     currentFilterGenre = normalizedSelectedValue;
   }
 
-  if (!filterItems) return; // Guard clause if filterItems isn't populated yet
+  if (!filterItems || filterItems.length === 0) {
+    const noResultsMessageContainer = document.getElementById("no-results-message");
+    if (noResultsMessageContainer) noResultsMessageContainer.style.display = 'none';
+    // Ensure project list is also clear if there are no filterable items
+    const projectList = document.querySelector('.project-list');
+    if (projectList) projectList.innerHTML = ''; // Clear project list if no items to filter
+    return;
+  }
 
+  let hasResults = false;
   for (let i = 0; i < filterItems.length; i++) {
     const item = filterItems[i];
     const itemTypes = item.dataset.categoryType ? item.dataset.categoryType.toLowerCase().split(' ') : [];
     const itemGenres = item.dataset.categoryGenre ? item.dataset.categoryGenre.toLowerCase().split(' ') : [];
 
-    let typeMatch = (currentFilterType === "alle typen" || itemTypes.includes(currentFilterType));
-    let genreMatch = (currentFilterGenre === "alle genres" || itemGenres.includes(currentFilterGenre));
+    const typeMatch = (currentFilterType === "alle typen" || (itemTypes.length > 0 && itemTypes.includes(currentFilterType)));
+    const genreMatch = (currentFilterGenre === "alle genres" || (itemGenres.length > 0 && itemGenres.includes(currentFilterGenre)));
 
     if (typeMatch && genreMatch) {
       item.classList.add("active");
+      hasResults = true;
     } else {
       item.classList.remove("active");
     }
   }
-}
+
+  const noResultsMessageContainer = document.getElementById("no-results-message");
+  if (noResultsMessageContainer) {
+    if (hasResults) {
+      noResultsMessageContainer.style.display = 'none';
+      noResultsMessageContainer.innerHTML = '';
+    } else {
+      noResultsMessageContainer.style.display = 'block';
+      let messageHTML = 'Mit diesen Eigenschaften haben wir noch kein Projekt veröffentlicht.';
+      
+      const suggestions = [];
+      // Only suggest "Alle Typen" if not already selected and if it's a valid filter criteria to change
+      if (currentFilterType !== "alle typen") {
+        suggestions.push({text: "Allen Typen", cat: 'type', val: "Alle Typen"});
+      }
+      // Only suggest "Alle Genres" if not already selected and if it's a valid filter criteria to change
+      if (currentFilterGenre !== "alle genres") {
+         suggestions.push({text: "Allen Genres", cat: 'genre', val: "Alle Genres"});
+      }
+
+      if (suggestions.length > 0) {
+        messageHTML += " Versuche es mit: ";
+        suggestions.forEach((sugg, index) => {
+          messageHTML += `<button class="filter-suggestion btn" data-filter-cat="${sugg.cat}" data-filter-val="${sugg.val}">${sugg.text}</button>`; // Added 'btn' class for potential styling
+          if (index < suggestions.length - 1) {
+            messageHTML += " oder ";
+          }
+        });
+        messageHTML += ".";
+      }
+      noResultsMessageContainer.innerHTML = messageHTML;
+
+      document.querySelectorAll('.filter-suggestion').forEach(button => {
+        button.addEventListener('click', function() {
+          const cat = this.dataset.filterCat;
+          const val = this.dataset.filterVal;
+          
+          let targetButton;
+          if (cat === 'type') {
+            // Prefer desktop button, fallback to select item
+            targetButton = Array.from(document.querySelectorAll(`[data-filter-btn-type]`)).find(b => b.innerText.toLowerCase() === val.toLowerCase());
+            if (!targetButton) {
+                 targetButton = Array.from(document.querySelectorAll(`[data-select-item-type]`)).find(b => b.innerText.toLowerCase() === val.toLowerCase());
+            }
+            if (selectValueType) selectValueType.innerText = val;
+          } else { // genre
+            targetButton = Array.from(document.querySelectorAll(`[data-filter-btn-genre]`)).find(b => b.innerText.toLowerCase() === val.toLowerCase());
+             if (!targetButton) {
+                targetButton = Array.from(document.querySelectorAll(`[data-select-item-genre]`)).find(b => b.innerText.toLowerCase() === val.toLowerCase());
+             }
+            if (selectValueGenre) selectValueGenre.innerText = val;
+          }
+
+          if (targetButton) {
+            targetButton.click(); 
+          } else {
+            // Fallback if no UI button found (e.g. if filters are not fully populated yet)
+            filterFunc(val, cat);
+            // Manually update active states for desktop buttons if fallback is used
+            if (cat === 'type') {
+                document.querySelectorAll('[data-filter-btn-type]').forEach(btn => {
+                    const isActive = btn.innerText.toLowerCase() === val.toLowerCase();
+                    btn.classList.toggle('active', isActive);
+                    if (isActive) lastClickedBtnType = btn;
+                    else if (lastClickedBtnType === btn) lastClickedBtnType.classList.remove('active');
+                });
+            } else { // genre
+                document.querySelectorAll('[data-filter-btn-genre]').forEach(btn => {
+                    const isActive = btn.innerText.toLowerCase() === val.toLowerCase();
+                    btn.classList.toggle('active', isActive);
+                    if (isActive) lastClickedBtnGenre = btn;
+                    else if (lastClickedBtnGenre === btn) lastClickedBtnGenre.classList.remove('active');
+                });
+            }
+          }
+        });
+      });
+    }
+  }
+};
 
 // Initial load functions
 window.addEventListener('load', () => {
   loadEvents();
   loadProjects().then(() => {
-      initializePortfolioSelectorsAndListeners();
-      // Set initial active state for "Alle" filters after projects and buttons are loaded
-      if (selectValueType) selectValueType.innerText = "Alle Typen";
-      if (selectValueGenre) selectValueGenre.innerText = "Alle Genres";
-
-      const initialActiveTypeButton = document.querySelector('#filter-list-type button');
-      if (initialActiveTypeButton) {
-          initialActiveTypeButton.classList.add('active');
-          lastClickedBtnType = initialActiveTypeButton;
-      }
-      const initialActiveGenreButton = document.querySelector('#filter-list-genre button');
-      if (initialActiveGenreButton) {
-          initialActiveGenreButton.classList.add('active');
-          lastClickedBtnGenre = initialActiveGenreButton;
-      }
-      filterFunc("Alle Typen", "type"); // Apply initial type filter
-      filterFunc("Alle Genres", "genre"); // Apply initial genre filter
+    initializePortfolioSelectorsAndListeners(); // Ensure this is still called
   });
+  loadTeamMembers(); // Add this call
 });
