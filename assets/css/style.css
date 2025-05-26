@@ -329,15 +329,16 @@ main {
   justify-content: flex-start;
   align-items: center;
   gap: 15px;
-  padding: 0 15px 15px;
-  /* border-bottom: 1px solid var(--jet); */ /* Entfernt für die Haupt-Infobox */
-  margin-bottom: 15px;
+  padding: 0 15px 15px; /* Padding unten beibehalten, falls gewünscht, oder auf 0 setzen */
+  /* border-bottom: 1px solid var(--jet); */ /* Diese Zeile wurde bereits auskommentiert oder entfernt - gut! */
+  margin-bottom: 15px; /* Behält den Abstand zur nächsten Sektion bei, falls .sidebar.active */
 }
 
 .avatar-box {
-  /* background: var(--jet); */ /* Entfernt, um den Hintergrund von sidebar-info zu übernehmen */
-  /* border-radius: 20px; */
-  /* box-shadow: var(--shadow-1); */
+  background: transparent; /* Stellt sicher, dass kein eigener Hintergrund gesetzt wird */
+  border-radius: 20px; /* Kann beibehalten oder entfernt werden, je nach gewünschtem Look */
+  /* box-shadow: var(--shadow-1); */ /* Entfernt, um keinen speziellen Schatten zu haben */
+  /* Wichtig: Stellen Sie sicher, dass das Elternelement .sidebar-info den gewünschten Hintergrund hat, der dann durchscheint */
 }
 
 .info-content .name {
@@ -500,22 +501,32 @@ main {
   #ABOUT
 \*-----------------------------------*/
 
-.about .article-title { margin-bottom: 15px; }
+/* Fügen Sie hier bei Bedarf Stile für den About-Bereich hinzu */
 
-.about-text {
-  color: var(--light-gray);
-  font-size: var(--fs-6);
-  font-weight: var(--fw-300);
-  line-height: 1.6;
+/*-----------------------------------*\
+  #IMPRESSUM
+\*-----------------------------------*/
+
+.impressum .impressum-content p,
+.impressum .impressum-content strong,
+.impressum .impressum-content address,
+.impressum .impressum-content li {
+  color: var(--white-2);
+  line-height: 1.6; /* Verbessert die Lesbarkeit für Textblöcke */
 }
 
-.about-text p { margin-bottom: 15px; }
+/* Stellt sicher, dass Links im Impressum auch die passende Farbe haben, falls vorhanden */
+.impressum .impressum-content a {
+  color: var(--orange-yellow-crayola); /* Standard-Linkfarbe der Seite */
+}
 
+.impressum .impressum-content a:hover {
+  text-decoration: underline;
+}
 
-
-/**
- * #service 
- */
+/*-----------------------------------*\
+  #SERVICE
+\*-----------------------------------*/
 
 .service { margin-bottom: 35px; }
 
@@ -1146,7 +1157,7 @@ main {
   filter: grayscale(1) invert(1);
 }
 
-.contact-form { margin-bottom: 30px; }
+.contact-form { margin-bottom: 10px; }
 
 .form-title { margin-bottom: 20px; }
 
@@ -1231,7 +1242,7 @@ textarea.form-input::-webkit-resizer { display: none; }
 
 
 /*-----------------------------------*\
-  #MEDIA QUERIES
+  #RESPONSIVE
 \*-----------------------------------*/
 
 /**
@@ -1884,27 +1895,4 @@ textarea.form-input::-webkit-resizer { display: none; }
 
   .timeline-text { max-width: 700px; }
 
-}
-
-/* Neue Stile für deaktivierte Filter */
-.filter-list button.disabled,
-.select-item button.disabled {
-  color: var(--light-gray-70) !important; /* Unterscheidet sich von normalem Hover/Focus */
-  opacity: 0.5;
-  pointer-events: none;
-  cursor: default;
-}
-
-/* Anpassung für Impressum Textfarbe */
-.impressum-section p {
-  color: var(--light-gray); /* Oder var(--light-gray-70), je nach gewünschter Standard-Absatzfarbe */
-  font-size: var(--fs-6); /* Konsistente Schriftgröße mit anderem Fließtext */
-  line-height: 1.6;
-  margin-bottom: 15px; /* Einheitlicher Abstand wie bei anderen Absätzen */
-}
-
-#no-results-message {
-  display: none;
-  text-align: center;
-  margin-top: 20px;
 }
