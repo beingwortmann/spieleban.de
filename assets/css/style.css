@@ -965,7 +965,7 @@ main {
 .project-item { display: none; }
 
 .project-item.active {
-  display: block;
+  display: block; /* Stellt sicher, dass das aktive Element korrekt angezeigt wird */
   animation: scaleUp 0.25s ease forwards;
 }
 
@@ -983,6 +983,14 @@ main {
   border-radius: 16px;
   overflow: hidden;
   margin-bottom: 15px;
+}
+
+.project-img img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Stellt sicher, dass das Bild den Container ausfüllt, ohne sich zu verzerren */
+  transition: var(--transition-1); /* Konsistent mit anderen Bildübergängen */
 }
 
 .project-img::before {
