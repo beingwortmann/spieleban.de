@@ -270,49 +270,34 @@ async function loadProjects() {
 
     projects.forEach(project => {
       const listItem = document.createElement("li");
-      listItem.classList.add("project-item", "active"); // Projekte sind initial aktiv, Filter blenden sie aus
+      listItem.classList.add("project-item", "active");
       listItem.dataset.type = project.types.join(',').toLowerCase();
       listItem.dataset.genre = project.genres.join(',').toLowerCase();
-      listItem.dataset.id = project.id;
+      listItem.dataset.id = project.id; // Store project ID
 
       const projectTitleClass = project.markdownFile ? 'project-title has-markdown' : 'project-title';
 
-      // Wiederherstellen der <a>-Tag-Struktur
-      // Das href Attribut kann "#" sein, da wir preventDefault() für die Klicks verwenden, die das Modal öffnen
       listItem.innerHTML = `
-        <a href="#"> 
-          <figure class="project-img">
-            <div class="project-item-icon-box">
-              <ion-icon name="eye-outline"></ion-icon>
-            </div>
-            <img src="${project.image}" alt="${project.name}" loading="lazy">
-          </figure>
-          <h3 class="${projectTitleClass}">${project.name}</h3>
-          <p class="project-category">${project.types.join(' / ')}</p>
-          <p class="project-category">${project.genres.join(' / ')}</p>
-        </a>
+        <figure class="project-img" data-project-id="${project.id}">
+          <div class="project-item-icon-box">
+            <ion-icon name="eye-outline"></ion-icon>
+          </div>
+          <img src="${project.image}" alt="${project.name}" loading="lazy">
+        </figure>
+        <h3 class="${projectTitleClass}" data-project-id="${project.id}">${project.name}</h3>
+        <p class="project-category">${project.types.join(' / ')}</p>
+        <p class="project-category">${project.genres.join(' / ')}</p>
       `;
       projectListContainer.appendChild(listItem);
 
       if (project.markdownFile) {
-        const projectImage = listItem.querySelector('.project-img'); // Dies ist das <figure>-Element
-        const projectTitle = listItem.querySelector('.project-title'); // Dies ist das <h3>-Element
+        const projectImage = listItem.querySelector('.project-img');
+        const projectTitle = listItem.querySelector('.project-title');
 
-        if (projectImage) {
-          projectImage.style.cursor = 'pointer';
-          projectImage.addEventListener('click', (e) => {
-            e.preventDefault(); // Verhindert das Standardverhalten des <a>-Tags
-            openProjectModal(project.markdownFile);
-          });
-        }
-
-        if (projectTitle) {
-          projectTitle.style.cursor = 'pointer';
-          projectTitle.addEventListener('click', (e) => {
-            e.preventDefault(); // Verhindert das Standardverhalten des <a>-Tags
-            openProjectModal(project.markdownFile);
-          });
-        }
+        projectImage.addEventListener('click', () => openProjectModal(project.markdownFile));
+        projectTitle.addEventListener('click', () => openProjectModal(project.markdownFile));
+        projectImage.style.cursor = 'pointer';
+        projectTitle.style.cursor = 'pointer';
       }
     });
 

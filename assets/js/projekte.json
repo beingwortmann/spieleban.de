@@ -32,6 +32,7 @@
     "image": "./assets/images/project-4.png",
     "types": ["Kenner- und Expertenspiel"],
     "genres": ["Pen and Paper", "Rollenspiel"],
-    "description": "Ein umfangreiches, DnD-kompatibles Projekt zur Selbstveröffentlichung."
+    "description": "Ein umfangreiches, DnD-kompatibles Projekt zur Selbstveröffentlichung.",
+    "markdownFile": "./assets/markdown/dnd.md"
   }
 ]
