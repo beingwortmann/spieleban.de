@@ -324,4 +324,22 @@ function filterProjects() {
 window.addEventListener('DOMContentLoaded', function() {
   renderEvents();
   renderPortfolio();
+
+  // Navigation-Fix: Nur ein Tab sichtbar
+  const navigationLinks = document.querySelectorAll('[data-nav-link]');
+  const pages = document.querySelectorAll('[data-page]');
+  navigationLinks.forEach((nav, idx) => {
+    nav.addEventListener('click', function() {
+      pages.forEach((page, i) => {
+        if (i === idx) {
+          page.classList.add('active');
+          nav.classList.add('active');
+        } else {
+          page.classList.remove('active');
+          navigationLinks[i].classList.remove('active');
+        }
+      });
+      window.scrollTo(0, 0);
+    });
+  });
 });
