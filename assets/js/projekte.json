@@ -5,7 +5,8 @@
     "image": "./assets/images/project-1.jpg",
     "types": ["Familienspiel"],
     "genres": ["Kartenspiel", "Würfelspiel"],
-    "description": "Ein rasantes Kartenspiel mit Würfeln für die ganze Familie."
+    "description": "Ein rasantes Kartenspiel mit Würfeln für die ganze Familie.",
+    "markdownFile": "./assets/markdown/kaese3.md"
   },
   {
     "id": "phantom",
@@ -13,7 +14,8 @@
     "image": "./assets/images/project-2.png",
     "types": ["Familienspiel", "Kennerspiel"],
     "genres": ["Würfelspiel", "Laufspiel", "Social Deduction"],
-    "description": "Ein spannendes Würfellaufspiel mit geheimen Zielen."
+    "description": "Ein spannendes Würfellaufspiel mit geheimen Zielen.",
+    "markdownFile": "./assets/markdown/phantom.md"
   },
   {
     "id": "packgammon",
@@ -21,7 +23,8 @@
     "image": "./assets/images/project-3.jpg",
     "types": ["Kenner- und Expertenspiel"],
     "genres": ["Abstraktes Spiel"],
-    "description": "Ein modernes Update des Klassikers Backgammon."
+    "description": "Ein modernes Update des Klassikers Backgammon.",
+    "markdownFile": "./assets/markdown/packgammon.md"
   },
   {
     "id": "dnd",
@@ -29,6 +32,7 @@
     "image": "./assets/images/project-4.png",
     "types": ["Kenner- und Expertenspiel"],
     "genres": ["Pen and Paper", "Rollenspiel"],
-    "description": "Ein umfangreiches, DnD-kompatibles Projekt zur Selbstveröffentlichung."
+    "description": "Ein umfangreiches, DnD-kompatibles Projekt zur Selbstveröffentlichung.",
+    "markdownFile": "./assets/markdown/dnd.md"
   }
 ]

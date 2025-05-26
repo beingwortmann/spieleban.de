@@ -275,20 +275,30 @@ async function loadProjects() {
       listItem.dataset.genre = project.genres.join(',').toLowerCase();
       listItem.dataset.id = project.id; // Store project ID
 
+      const projectTitleClass = project.markdownFile ? 'project-title has-markdown' : 'project-title';
+
       listItem.innerHTML = `
-        <a href="#">
-          <figure class="project-img">
-            <div class="project-item-icon-box">
-              <ion-icon name="eye-outline"></ion-icon>
-            </div>
-            <img src="${project.image}" alt="${project.name}" loading="lazy">
-          </figure>
-          <h3 class="project-title">${project.name}</h3>
-          <p class="project-category">${project.types.join(' / ')}</p>
-          <p class="project-category">${project.genres.join(' / ')}</p>
-        </a>
+        <figure class="project-img" data-project-id="${project.id}">
+          <div class="project-item-icon-box">
+            <ion-icon name="eye-outline"></ion-icon>
+          </div>
+          <img src="${project.image}" alt="${project.name}" loading="lazy">
+        </figure>
+        <h3 class="${projectTitleClass}" data-project-id="${project.id}">${project.name}</h3>
+        <p class="project-category">${project.types.join(' / ')}</p>
+        <p class="project-category">${project.genres.join(' / ')}</p>
       `;
       projectListContainer.appendChild(listItem);
+
+      if (project.markdownFile) {
+        const projectImage = listItem.querySelector('.project-img');
+        const projectTitle = listItem.querySelector('.project-title');
+
+        projectImage.addEventListener('click', () => openProjectModal(project.markdownFile));
+        projectTitle.addEventListener('click', () => openProjectModal(project.markdownFile));
+        projectImage.style.cursor = 'pointer';
+        projectTitle.style.cursor = 'pointer';
+      }
     });
 
     filterItems = document.querySelectorAll(".project-item");
@@ -576,6 +586,132 @@ function updateFilterButtonsState() {
     });
 }
 
+
+// Project Modal Variables and Functions
+const projectModalContainer = document.querySelector("[data-project-modal-container]");
+const projectOverlay = document.querySelector("[data-project-overlay]");
+const projectModalCloseBtn = document.querySelector("[data-project-modal-close-btn]");
+const projectModalContent = document.querySelector("[data-project-modal-content]");
+
+async function openProjectModal(markdownPath) {
+  if (!markdownPath) return;
+
+  try {
+    const response = await fetch(markdownPath);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    let markdownText = await response.text();
+
+    // Ersetze relative Bildpfade im Markdown
+    // Annahme: Bilder im Markdown sind relativ zum Ordner assets/
+    // z.B. ![Alt Text](./images/mein-bild.png) wird zu ![Alt Text](./assets/images/mein-bild.png)
+    // Da die Markdown-Dateien bereits in assets/markdown liegen und Pfade wie ./assets/images/... haben, 
+    // müssen wir den Pfad so anpassen, dass er vom Stammverzeichnis der Website aus korrekt ist.
+    // Derzeitiger Pfad: ./assets/markdown/mein.md -> Bildpfad im MD: ./assets/images/bild.png
+    // Korrekter relativer Pfad von index.html aus: ./assets/images/bild.png
+    // Die Pfade in den Markdown-Dateien scheinen bereits korrekt zu sein, wenn sie als `assets/images/...` angegeben sind.
+    // Wenn sie als `./images/...` angegeben sind, müssen sie angepasst werden.
+    // Diese Ersetzung geht davon aus, dass die Bilder im Markdown relativ zum `assets` Ordner sind.
+    // Und die Markdown-Datei selbst ist in `assets/markdown`.
+    // Ein Pfad wie `![Alt Text](./image.png)` in `assets/markdown/file.md` würde zu `assets/markdown/image.png`.
+    // Wir wollen, dass es zu `assets/image.png` wird, wenn das Bild direkt in `assets` liegt,
+    // oder `assets/images/image.png`, wenn es in `assets/images` liegt.
+    // Die aktuelle Struktur der Markdown-Beispieldateien verwendet bereits `./assets/images/...`,
+    // was von der `index.html` aus korrekt aufgelöst werden sollte, wenn das HTML direkt in den Modal-Inhalt eingefügt wird.
+    // Daher ist eine Pfadanpassung hier möglicherweise nicht notwendig, wenn die Markdown-Pfade konsistent sind.
+    // Wir gehen davon aus, dass Pfade im Markdown wie folgt sind: `![Alt Text](assets/images/bild.jpg)`
+    // oder relativ zum Markdown-File, z.B. `../images/bild.jpg` wenn das Bild in `assets/images` liegt.
+
+    // Einfache Markdown-zu-HTML-Konvertierung (Basis-Funktionalität)
+    // Überschriften
+    markdownText = markdownText.replace(/^# (.*$)/gim, '<h1>$1</h1>');
+    markdownText = markdownText.replace(/^## (.*$)/gim, '<h2>$1</h2>');
+    markdownText = markdownText.replace(/^### (.*$)/gim, '<h3>$1</h3>');
+    // Fett
+    markdownText = markdownText.replace(/\*\*(.*?)\*\*/gim, '<strong>$1</strong>');
+    markdownText = markdownText.replace(/__(.*?)__/gim, '<strong>$1</strong>');
+    // Kursiv
+    markdownText = markdownText.replace(/\*(.*?)\*/gim, '<em>$1</em>');
+    markdownText = markdownText.replace(/_(.*?)_/gim, '<em>$1</em>');
+    // Bilder: ![Alt Text](Pfad)
+    // Die Pfade in Markdown sind relativ zum Markdown-File.
+    // Wir müssen sie so anpassen, dass sie relativ zur index.html sind.
+    // Annahme: Markdown liegt in assets/markdown/, Bilder in assets/images/
+    // Ein Pfad wie `../images/foo.png` in `assets/markdown/projekt.md` wird zu `assets/images/foo.png`
+    // Ein Pfad wie `./bild.png` in `assets/markdown/projekt.md` wird zu `assets/markdown/bild.png`
+    // Ein Pfad wie `assets/images/bild.png` in `assets/markdown/projekt.md` ist bereits korrekt, wenn die Basis `index.html` ist.
+    // Die bereitgestellten Markdown-Beispiele verwenden `./assets/images/...`.
+    // Wenn die Markdown-Datei in `assets/markdown/` liegt, dann ist `./assets/` von dort aus `assets/markdown/assets/`.
+    // Das ist falsch. Die Pfade in den Markdown-Dateien sollten `../images/bild.png` sein oder absolute Pfade vom Root `/assets/images/bild.png`.
+    // Wir gehen davon aus, dass die Pfade in den Markdown-Dateien bereits korrekt sind für die Anzeige in index.html,
+    // d.h. sie sind relativ zum Root oder beginnen mit `assets/`.
+    // Die Markdown-Beispiele haben: ![Käse³](./assets/images/project-1.jpg)
+    // Wenn die MD-Datei in `s:/Entwicklung/GitHub Pages/spieleban.de/assets/markdown/kaese3.md` ist,
+    // dann zeigt `./assets/images/project-1.jpg` auf `s:/Entwicklung/GitHub Pages/spieleban.de/assets/markdown/assets/images/project-1.jpg`.
+    // Das ist nicht korrekt. Die Pfade in den Markdown-Dateien müssen angepasst werden oder die Ersetzung hier muss das korrigieren.
+
+    // Korrektur für Bildpfade: Annahme, dass Pfade im Markdown wie `![Alt Text](./image.png)` oder `![Alt Text](image.png)`
+    // und sich auf Bilder beziehen, die relativ zum `assets/images/` Ordner sind, oder dass der Pfad bereits `assets/images/...` ist.
+    // Sicherer Ansatz: Pfade, die mit `./assets/` beginnen, sind bereits korrekt relativ zur `index.html`.
+    // Pfade, die nur mit `./` beginnen (z.B. `./image.png`) und sich in `assets/markdown/` befinden, müssen zu `assets/markdown/image.png` werden.
+    // Pfade, die mit `../images/` beginnen, werden zu `assets/images/`.
+
+    markdownText = markdownText.replace(/\!\[(.*?)\]\((.*?)\)/gim, (match, alt, src) => {
+      let newSrc = src;
+      if (src.startsWith('./assets/')) {
+        // Bereits korrekter Pfad relativ zu index.html, wenn MD in assets/markdown liegt und Pfad so ist.
+        // Beispiel: MD in assets/markdown/file.md, Bildpfad ./assets/images/img.png -> wird zu assets/images/img.png
+        // Das ist nur korrekt, wenn die Webseite von einem Unterordner aus serviert wird, wo assets/ ein direkter Unterordner ist.
+        // Für GitHub Pages (spieleban.de/repo-name/) ist das anders.
+        // Sicherer ist, Pfade relativ zum Root zu machen oder die Basis-URL zu berücksichtigen.
+        // Für dieses Projekt gehen wir davon aus, dass die Pfade in den Markdown-Dateien bereits korrekt sind
+        // und beginnen mit `assets/` oder `./assets/` was als `assets/` vom Root interpretiert wird.
+        // Die Markdown-Beispiele haben `./assets/images/...`. Das wird von `index.html` als `assets/images/...` interpretiert.
+      } else if (src.startsWith('../')) {
+        // Pfad wie ../images/foo.png in assets/markdown/file.md -> assets/images/foo.png
+        newSrc = src.replace(/^\.\.\//, 'assets/');
+      } else if (src.startsWith('./')) {
+        // Pfad wie ./foo.png in assets/markdown/file.md -> assets/markdown/foo.png
+        const basePath = markdownPath.substring(0, markdownPath.lastIndexOf('/'));
+        newSrc = basePath + '/' + src.substring(2);
+      }
+      // Für dieses Projekt sind die Pfade in den Markdown-Dateien bereits `./assets/images/...`,
+      // was von der `index.html` korrekt als `assets/images/...` interpretiert wird.
+      // Daher ist keine komplexe Ersetzung notwendig, solange dieses Format beibehalten wird.
+      return `<img src="${newSrc}" alt="${alt}" style="max-width: 100%; height: auto; border-radius: 8px; margin-top: 10px; margin-bottom: 10px;">`;
+    });
+
+    // Absätze (nach anderen Blockelementen, um Konflikte zu vermeiden)
+    markdownText = markdownText.split('\n\n').map(paragraph => {
+      if (paragraph.startsWith('<') || paragraph.trim() === '') return paragraph; // Nicht anrühren, wenn es schon HTML ist oder leer
+      return `<p>${paragraph.replace(/\n/g, '<br>')}</p>`;
+    }).join('');
+
+    projectModalContent.innerHTML = markdownText;
+    if (projectModalContainer) elementToggleFunc(projectModalContainer);
+    if (projectOverlay) elementToggleFunc(projectOverlay);
+
+  } catch (error) {
+    console.error("Fehler beim Laden oder Parsen der Markdown-Datei:", error);
+    projectModalContent.innerHTML = "<p>Fehler beim Laden des Projekt-Details. Bitte versuchen Sie es später erneut.</p>";
+    if (projectModalContainer) elementToggleFunc(projectModalContainer);
+    if (projectOverlay) elementToggleFunc(projectOverlay);
+  }
+}
+
+if (projectModalCloseBtn) {
+  projectModalCloseBtn.addEventListener("click", () => {
+    if (projectModalContainer) elementToggleFunc(projectModalContainer);
+    if (projectOverlay) elementToggleFunc(projectOverlay);
+  });
+}
+if (projectOverlay) {
+  projectOverlay.addEventListener("click", () => {
+    if (projectModalContainer) elementToggleFunc(projectModalContainer);
+    if (projectOverlay) elementToggleFunc(projectOverlay);
+  });
+}
 
 // Initial load functions
 window.addEventListener('load', () => {
