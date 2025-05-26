@@ -16,13 +16,11 @@ if (sidebarBtn) {
 const contactBtnSidebar = document.querySelector("[data-nav-link-contact]");
 if (contactBtnSidebar) {
   contactBtnSidebar.addEventListener("click", function () {
-    // Simulate click on the actual contact navigation link
-    const contactNavLink = document.querySelector("[data-nav-link='kontakt']");
-    if (contactNavLink) {
-      contactNavLink.click();
-      // If sidebar is open on mobile, close it
-      if (sidebar && sidebar.classList.contains("active")) {
-        elementToggleFunc(sidebar);
+    const kontaktNavLink = Array.from(navigationLinks).find(link => link.textContent.toLowerCase() === "kontakt");
+    if (kontaktNavLink) {
+      kontaktNavLink.click();
+      if (sidebar.classList.contains("active")) {
+        sidebarBtn.click();
       }
     }
   });
@@ -35,18 +33,27 @@ const pages = document.querySelectorAll("[data-page]");
 // add event to all nav link
 for (let i = 0; i < navigationLinks.length; i++) {
   navigationLinks[i].addEventListener("click", function () {
+    const clickedLinkText = this.innerHTML.toLowerCase();
     for (let j = 0; j < pages.length; j++) {
-      if (this.innerHTML.toLowerCase() === pages[j].dataset.page) {
+      if (clickedLinkText === pages[j].dataset.page.toLowerCase()) {
         pages[j].classList.add("active");
-        navigationLinks[j].classList.add("active");
+        navigationLinks[i].classList.add("active");
         window.scrollTo(0, 0);
       } else {
         pages[j].classList.remove("active");
-        navigationLinks[j].classList.remove("active");
+        // navigationLinks[j].classList.remove("active"); // Keep this line commented or remove
       }
     }
+    // Ensure the clicked link itself is marked active, and others are not.
+    for (let k = 0; k < navigationLinks.length; k++) {
+      if (navigationLinks[k] !== this) {
+        navigationLinks[k].classList.remove("active");
+      }
+    }
+    this.classList.add("active");
   });
 }
+
 
 // contact form variables
 const form = document.querySelector("[data-form]");
@@ -58,21 +65,14 @@ if (form) {
   for (let i = 0; i < formInputs.length; i++) {
     formInputs[i].addEventListener("input", function () {
       if (form.checkValidity()) {
-        formBtn.removeAttribute("disabled");
+        if (formBtn) formBtn.removeAttribute("disabled");
       } else {
-        formBtn.setAttribute("disabled", "");
+        if (formBtn) formBtn.setAttribute("disabled", "");
       }
     });
   }
-  // Event listener for form submission (optional, for now just prevents default)
-  form.addEventListener("submit", function(event) {
-    event.preventDefault();
-    // Potentially add form submission logic here (e.g., using Formspree or similar)
-    alert("Nachricht gesendet! (Dies ist eine Demo)");
-    form.reset();
-    formBtn.setAttribute("disabled", "");
-  });
 }
+
 
 // Load and display events
 async function loadEvents() {
@@ -83,66 +83,63 @@ async function loadEvents() {
     }
     const events = await response.json();
 
-    const upcomingEventsContainer = document.querySelector(".timeline-list-upcoming");
-    const pastEventsContainer = document.querySelector(".timeline-list-past");
+    const upcomingEventsContainer = document.getElementById("upcoming-events-list");
+    const pastEventsContainer = document.getElementById("past-events-list");
 
-    if (!upcomingEventsContainer || !pastEventsContainer) {
-      console.error("Event containers not found!");
-      return;
-    }
+    if (!upcomingEventsContainer || !pastEventsContainer) return;
 
-    upcomingEventsContainer.innerHTML = ''; // Clear existing
-    pastEventsContainer.innerHTML = '';   // Clear existing
+    upcomingEventsContainer.innerHTML = ''; // Clear existing static content
+    pastEventsContainer.innerHTML = '';   // Clear existing static content
 
-    const now = new Date();
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
 
     events.forEach(event => {
-      const eventDate = new Date(event.date);
-      const listItem = document.createElement("li");
-      listItem.classList.add("timeline-item");
+      const eventDate = new Date(event.dateStart); // Use dateStart for comparison
+      const listItem = document.createElement('li');
+      listItem.classList.add('timeline-item');
+      listItem.dataset.date = event.dateStart; // Store sortable date
 
-      let mitDabeiHTML = '';
-      if (event.mit_dabei && event.mit_dabei.length > 0) {
-        mitDabeiHTML = `<p class="timeline-item-detailed-text">mit dabei: ${event.mit_dabei.join(', ')}</p>`;
-      }
+      const title = document.createElement('h4');
+      title.classList.add('h4', 'timeline-item-title');
+      title.textContent = event.title;
 
-      listItem.innerHTML = `
-        <h4 class="h4 timeline-item-title">${event.name}
-          <span class="timeline-item-date">(${eventDate.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' })})</span>
-        </h4>
-        <span>${event.location}</span>
-        <p class="timeline-text">${event.description}</p>
-        ${mitDabeiHTML}
-      `;
+      const dateSpan = document.createElement('span');
+      dateSpan.textContent = event.displayDate;
 
-      if (eventDate >= now) {
+      const text = document.createElement('p');
+      text.classList.add('timeline-text');
+      text.textContent = "mit dabei: " + event.projects.join(', ');
+
+      listItem.appendChild(title);
+      listItem.appendChild(dateSpan);
+      listItem.appendChild(text);
+
+      if (eventDate >= today) {
         upcomingEventsContainer.appendChild(listItem);
       } else {
         pastEventsContainer.appendChild(listItem);
       }
     });
 
-    sortEventList(upcomingEventsContainer, true); // Ascending for upcoming (nearest first)
-    sortEventList(pastEventsContainer, false);   // Descending for past (newest first)
+    sortEventList(upcomingEventsContainer, false); // Anstehende: Neueste zuerst (oben)
+    sortEventList(pastEventsContainer, false);    // Vergangene: Neueste zuerst (oben)
 
   } catch (error) {
-    console.error("Could not load events:", error);
+    console.error("Fehler beim Laden der Veranstaltungsdaten:", error);
   }
 }
 
 function sortEventList(listContainer, ascending = true) {
   const items = Array.from(listContainer.children);
   items.sort((a, b) => {
-    const dateAStr = a.querySelector(".timeline-item-date").textContent.replace(/[()]/g, '');
-    const dateBStr = b.querySelector(".timeline-item-date").textContent.replace(/[()]/g, '');
-    
-    const dateA = new Date(dateAStr.split('.').reverse().join('-'));
-    const dateB = new Date(dateBStr.split('.').reverse().join('-'));
-
+    const dateA = new Date(a.dataset.date);
+    const dateB = new Date(b.dataset.date);
     return ascending ? dateA - dateB : dateB - dateA;
   });
   items.forEach(item => listContainer.appendChild(item));
 }
+
 
 // Team members data
 const teamMembers = [
@@ -156,40 +153,46 @@ function loadTeamMembers() {
   const serviceListContainer = document.querySelector("article[data-page='über uns'] .service-list");
 
   if (!serviceListContainer) {
-    console.error("Service list container not found for team members!");
+    console.error("Service list container not found for team members.");
     return;
   }
 
-  serviceListContainer.innerHTML = ''; // Clear existing members
+  serviceListContainer.innerHTML = ''; // Clear existing, if any
+
   teamMembers.forEach(member => {
-    const serviceItem = document.createElement("li");
-    serviceItem.classList.add("service-item");
-    serviceItem.innerHTML = `
-      <div class="service-icon-box">
-        <img src="${member.image}" alt="${member.name}" width="60" style="border-radius: 50%;">
-      </div>
-      <div class="service-content-box">
-        <h4 class="h4 service-item-title">${member.name}</h4>
-        <p class="service-item-text">${member.role}</p>
-      </div>
-    `;
-    serviceListContainer.appendChild(serviceItem);
+    const listItem = document.createElement("li");
+    listItem.classList.add("service-item");
+
+    const iconBox = document.createElement("div");
+    iconBox.classList.add("service-icon-box");
+
+    const img = document.createElement("img");
+    img.src = member.image;
+    img.alt = member.name;
+    img.width = 60; // Adjusted size for team member images
+
+    iconBox.appendChild(img);
+
+    const contentBox = document.createElement("div");
+    contentBox.classList.add("service-content-box");
+
+    const title = document.createElement("h4");
+    title.classList.add("h4", "service-item-title");
+    title.textContent = member.name;
+
+    const text = document.createElement("p");
+    text.classList.add("service-item-text");
+    text.textContent = member.role;
+
+    contentBox.appendChild(title);
+    contentBox.appendChild(text);
+
+    listItem.appendChild(iconBox);
+    listItem.appendChild(contentBox);
+
+    serviceListContainer.appendChild(listItem);
   });
 }
-
-// Portfolio variables
-let allProjects = [];
-let filterItems; // Will be a NodeList of project <li> items
-
-// custom select variables for portfolio filtering
-let selectType, selectItemsTypeButtons, selectValueType;
-let selectGenre, selectItemsGenreButtons, selectValueGenre;
-let filterBtnType, filterBtnGenre; // These will be NodeLists of desktop buttons
-let lastClickedBtnType, lastClickedBtnGenre; // For managing active state on desktop
-
-// Store current filters
-let currentFilterType = "Alle Typen";
-let currentFilterGenre = "Alle Genres";
 
 
 // Load and display projects and filters
@@ -199,299 +202,462 @@ async function loadProjects() {
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
-    allProjects = await response.json();
+    const projects = await response.json();
 
-    const projectsContainer = document.querySelector(".projects .project-list");
-    if (!projectsContainer) {
-      console.error("Project container (.projects .project-list) not found!");
+    const projectListContainer = document.querySelector(".project-list");
+    const noResultsMessageContainer = document.getElementById("no-results-message");
+    const filterListTypeContainer = document.getElementById("filter-list-type");
+    const filterListGenreContainer = document.getElementById("filter-list-genre");
+    const selectListTypeContainer = document.getElementById("select-list-type");
+    const selectListGenreContainer = document.getElementById("select-list-genre");
+    const selectValueType = document.querySelector("[data-select-value-type]");
+    const selectValueGenre = document.querySelector("[data-select-value-genre]");
+
+    if (!projectListContainer || !filterListTypeContainer || !filterListGenreContainer || !selectListTypeContainer || !selectListGenreContainer || !selectValueType || !selectValueGenre) {
+      console.error("Einige Portfolio-Elemente wurden nicht im DOM gefunden.");
       return;
     }
-    projectsContainer.innerHTML = ''; 
 
-    const filterTypeContainerDesktop = document.querySelector(".filter-list[data-filter-type-list]");
-    const filterGenreContainerDesktop = document.querySelector(".filter-list[data-filter-genre-list]");
-    const selectTypeListContainer = document.querySelector("[data-select-type] .select-list");
-    const selectGenreListContainer = document.querySelector("[data-select-genre] .select-list");
+    projectListContainer.innerHTML = ''; // Clear existing static content
 
-    const types = new Set(["Alle Typen"]);
-    const genres = new Set(["Alle Genres"]);
+    const allTypes = new Set(["Alle Typen"]);
+    const allGenres = new Set(["Alle Genres"]);
 
-    allProjects.forEach(project => {
-      project.types.forEach(type => types.add(type));
-      project.genres.forEach(genre => genres.add(genre));
+    projects.forEach(project => {
+      project.types.forEach(type => allTypes.add(type));
+      project.genres.forEach(genre => allGenres.add(genre));
 
-      const projectLi = document.createElement("li");
-      projectLi.classList.add("project-item", "active"); 
-      projectLi.dataset.projectTypes = project.types.join('%%');
-      projectLi.dataset.projectGenres = project.genres.join('%%');
-      
-      // Add normalized class names for potential advanced filtering (not used by current logic but good practice)
-      project.types.forEach(t => projectLi.classList.add(t.toLowerCase().replace(/\\s+/g, '-')));
-      project.genres.forEach(g => projectLi.classList.add(g.toLowerCase().replace(/\\s+/g, '-')));
+      const listItem = document.createElement('li');
+      listItem.classList.add('project-item', 'active'); // Start with active, filterFunc will adjust
+      listItem.dataset.filterItem = ''; // Mark as a filterable item
+      // Normalisiere Typen und Genres für zuverlässiges Filtern
+      listItem.dataset.categoryType = project.types
+        .map(type => type.toLowerCase().replace(/\\s+/g, '-'))
+        .join('%%');
+      listItem.dataset.categoryGenre = project.genres
+        .map(genre => genre.toLowerCase().replace(/\\s+/g, '-'))
+        .join('%%');
 
+      const link = document.createElement('a');
+      link.href = "#"; // Or project.link if available
 
-      projectLi.innerHTML = `
-        <a href="#">
-          <figure class="project-img">
-            <div class="project-item-icon-box">
-              <span class="material-symbols-outlined">visibility</span>
-            </div>
-            <img src="${project.image}" alt="${project.name}" loading="lazy">
-          </figure>
-          <h3 class="project-title">${project.name}</h3>
-          <p class="project-category">${project.types.join(', ')}</p>
-          <p class="project-category">${project.genres.join(', ')}</p>
-        </a>
-      `;
-      projectsContainer.appendChild(projectLi);
+      const figure = document.createElement('figure');
+      figure.classList.add('project-img');
+
+      const iconBox = document.createElement('div');
+      iconBox.classList.add('project-item-icon-box');
+      const icon = document.createElement('span'); // Using span for Material Icon
+      icon.classList.add('material-symbols-outlined');
+      icon.textContent = 'visibility'; // Example icon, replace as needed
+      iconBox.appendChild(icon);
+
+      const img = document.createElement('img');
+      img.src = project.image;
+      img.alt = project.name;
+      img.loading = 'lazy';
+
+      figure.appendChild(iconBox);
+      figure.appendChild(img);
+
+      const title = document.createElement('h3');
+      title.classList.add('project-title');
+      title.textContent = project.name;
+
+      const category = document.createElement('p');
+      category.classList.add('project-category');
+      category.textContent = project.genres.join(', '); // Display genres
+
+      link.appendChild(figure);
+      link.appendChild(title);
+      link.appendChild(category);
+      listItem.appendChild(link);
+      projectListContainer.appendChild(listItem);
     });
 
-    filterItems = projectsContainer.querySelectorAll(".project-item");
+    // Populate Type Filters
+    filterListTypeContainer.innerHTML = ''; // Clear static "Alle Typen"
+    selectListTypeContainer.innerHTML = '';
+    allTypes.forEach(type => {
+      createFilterButton(type, 'type', filterListTypeContainer, false, type === "Alle Typen");
+      createFilterButton(type, 'type', selectListTypeContainer, true, type === "Alle Typen");
+    });
 
-    if (filterTypeContainerDesktop) {
-      filterTypeContainerDesktop.innerHTML = '';
-      types.forEach(type => createFilterButton(type, 'type', filterTypeContainerDesktop, false, type === "Alle Typen"));
-    }
-    if (selectTypeListContainer) {
-      selectTypeListContainer.innerHTML = '';
-      types.forEach(type => createFilterButton(type, 'type', selectTypeListContainer, true, type === "Alle Typen"));
-    }
+    // Populate Genre Filters
+    filterListGenreContainer.innerHTML = ''; // Clear static "Alle Genres"
+    selectListGenreContainer.innerHTML = '';
+    allGenres.forEach(genre => {
+      createFilterButton(genre, 'genre', filterListGenreContainer, false, genre === "Alle Genres");
+      createFilterButton(genre, 'genre', selectListGenreContainer, true, genre === "Alle Genres");
+    });
 
-    if (filterGenreContainerDesktop) {
-      filterGenreContainerDesktop.innerHTML = '';
-      genres.forEach(genre => createFilterButton(genre, 'genre', filterGenreContainerDesktop, false, genre === "Alle Genres"));
-    }
-    if (selectGenreListContainer) {
-      selectGenreListContainer.innerHTML = '';
-      genres.forEach(genre => createFilterButton(genre, 'genre', selectGenreListContainer, true, genre === "Alle Genres"));
-    }
-    
-    initializePortfolioSelectorsAndListeners();
+    // Initialize filter items for filterFunc
+    filterItems = document.querySelectorAll("[data-filter-item]");
+    // Initialize last clicked buttons for desktop filters
+    lastClickedBtnType = filterListTypeContainer.querySelector('button.active');
+    lastClickedBtnGenre = filterListGenreContainer.querySelector('button.active');
+
+
+    // Add event listeners to newly created filter buttons
+    addEventListenersToFilterButtons();
+
 
   } catch (error) {
-    console.error("Could not load projects:", error);
+    console.error("Fehler beim Laden der Projektdaten:", error);
   }
 }
 
 function createFilterButton(value, category, container, isSelect = false, isActive = false) {
   const listItem = document.createElement("li");
-  if (isSelect) listItem.classList.add("select-item");
+  if (!isSelect) listItem.classList.add("filter-item");
+  else listItem.classList.add("select-item");
 
   const button = document.createElement("button");
-  button.textContent = value;
-
-  if (category === 'type') {
-    if (!isSelect) button.dataset.filterBtnType = value;
-    button.dataset.filterValue = value; // Common attribute for easier selection in listeners
-    button.dataset.filterCat = 'type';
-  }
-  if (category === 'genre') {
-    if (!isSelect) button.dataset.filterBtnGenre = value;
-    button.dataset.filterValue = value; // Common attribute
-    button.dataset.filterCat = 'genre';
-  }
+  button.textContent = value; // No need to capitalize "Alle Typen" or "Alle Genres"
+  if (category === 'type') button.dataset.filterBtnType = '';
+  if (category === 'genre') button.dataset.filterBtnGenre = '';
+  if (isSelect && category === 'type') button.dataset.selectItemType = '';
+  if (isSelect && category === 'genre') button.dataset.selectItemGenre = '';
 
   if (isActive) {
     button.classList.add("active");
-    if (!isSelect) { // Only for desktop buttons, manage lastClicked
-        if (category === 'type') lastClickedBtnType = button;
-        if (category === 'genre') lastClickedBtnGenre = button;
-    }
   }
 
   listItem.appendChild(button);
   container.appendChild(listItem);
 }
 
+
+// custom select variables for portfolio filtering
+let selectType, selectItemsType, selectValueType;
+let selectGenre, selectItemsGenre, selectValueGenre;
+let filterBtnType, filterBtnGenre; // These will be NodeLists of buttons
+let filterItems; // This will be a NodeList of project items
+let lastClickedBtnType, lastClickedBtnGenre;
+
 function initializePortfolioSelectorsAndListeners() {
     selectType = document.querySelector("[data-select-type]");
     selectValueType = document.querySelector("[data-select-value-type]");
-    
+
     selectGenre = document.querySelector("[data-select-genre]");
     selectValueGenre = document.querySelector("[data-select-value-genre]");
 
     if (selectType) {
-        const selectBoxType = selectType.querySelector("[data-select-box]");
-        if (selectBoxType) selectBoxType.addEventListener("click", function () { elementToggleFunc(selectType); });
-        
-        selectItemsTypeButtons = selectType.querySelectorAll(".select-list li button");
-        selectItemsTypeButtons.forEach(button => {
-            button.addEventListener("click", function () {
-                const selectedValue = this.dataset.filterValue;
-                if(selectValueType) selectValueType.textContent = this.textContent;
-                elementToggleFunc(selectType);
-                filterFunc(selectedValue, 'type');
-            });
-        });
+        selectType.addEventListener("click", function () { elementToggleFunc(this); });
     }
-
     if (selectGenre) {
-        const selectBoxGenre = selectGenre.querySelector("[data-select-box]");
-        if (selectBoxGenre) selectBoxGenre.addEventListener("click", function () { elementToggleFunc(selectGenre); });
-
-        selectItemsGenreButtons = selectGenre.querySelectorAll(".select-list li button");
-        selectItemsGenreButtons.forEach(button => {
-            button.addEventListener("click", function () {
-                const selectedValue = this.dataset.filterValue;
-                if(selectValueGenre) selectValueGenre.textContent = this.textContent;
-                elementToggleFunc(selectGenre);
-                filterFunc(selectedValue, 'genre');
-            });
-        });
+        selectGenre.addEventListener("click", function () { elementToggleFunc(this); });
     }
-    addEventListenersToFilterButtons();
+    addEventListenersToFilterButtons(); // Call here after buttons are potentially created
 }
+
 
 function addEventListenersToFilterButtons() {
+    // Desktop/Button Filters
     filterBtnType = document.querySelectorAll("[data-filter-btn-type]");
-    filterBtnType.forEach(button => {
-        button.addEventListener("click", function () {
-            filterFunc(this.dataset.filterBtnType, 'type');
+    filterBtnGenre = document.querySelectorAll("[data-filter-btn-genre]");
+
+    // Select/Dropdown Filters
+    selectItemsType = document.querySelectorAll("[data-select-item-type]");
+    selectItemsGenre = document.querySelectorAll("[data-select-item-genre]");
+
+    filterBtnType.forEach(btn => {
+        btn.addEventListener("click", function () {
+            const selectedValue = this.innerText;
+            filterFunc(selectedValue, 'type');
+            if (lastClickedBtnType) lastClickedBtnType.classList.remove("active");
+            this.classList.add("active");
+            lastClickedBtnType = this;
+            if (selectValueType) selectValueType.innerText = selectedValue; // Sync select
         });
     });
 
-    filterBtnGenre = document.querySelectorAll("[data-filter-btn-genre]");
-    filterBtnGenre.forEach(button => {
-        button.addEventListener("click", function () {
-            filterFunc(this.dataset.filterBtnGenre, 'genre');
+    filterBtnGenre.forEach(btn => {
+        btn.addEventListener("click", function () {
+            const selectedValue = this.innerText;
+            filterFunc(selectedValue, 'genre');
+            if (lastClickedBtnGenre) lastClickedBtnGenre.classList.remove("active");
+            this.classList.add("active");
+            lastClickedBtnGenre = this;
+            if (selectValueGenre) selectValueGenre.innerText = selectedValue; // Sync select
+        });
+    });
+
+    selectItemsType.forEach(item => {
+        item.addEventListener("click", function () {
+            const selectedValue = this.innerText;
+            if (selectValueType) selectValueType.innerText = selectedValue;
+            if (selectType) elementToggleFunc(selectType);
+            filterFunc(selectedValue, 'type');
+            // Sync desktop buttons
+            filterBtnType.forEach(btn => {
+                if (btn.innerText === selectedValue) {
+                    if (lastClickedBtnType) lastClickedBtnType.classList.remove("active");
+                    btn.classList.add("active");
+                    lastClickedBtnType = btn;
+                } else {
+                    btn.classList.remove("active");
+                }
+            });
+        });
+    });
+
+    selectItemsGenre.forEach(item => {
+        item.addEventListener("click", function () {
+            const selectedValue = this.innerText;
+            if (selectValueGenre) selectValueGenre.innerText = selectedValue;
+            if (selectGenre) elementToggleFunc(selectGenre);
+            filterFunc(selectedValue, 'genre');
+            // Sync desktop buttons
+            filterBtnGenre.forEach(btn => {
+                if (btn.innerText === selectedValue) {
+                    if (lastClickedBtnGenre) lastClickedBtnGenre.classList.remove("active");
+                    btn.classList.add("active");
+                    lastClickedBtnGenre = btn;
+                } else {
+                    btn.classList.remove("active");
+                }
+            });
         });
     });
 }
 
-const filterFunc = function (selectedValue, filterCategory) {
-  if (filterCategory === 'type') {
-    currentFilterType = selectedValue;
-  } else if (filterCategory === 'genre') {
-    currentFilterGenre = selectedValue;
+
+// Store current filters
+let currentFilterType = "Alle Typen";
+let currentFilterGenre = "Alle Genres";
+
+const filterFunc = function (event) {
+  lastClickedFilterBtn = this;
+
+  const selectedType = filterSelects.type.value.toLowerCase();
+  const selectedGenre = filterSelects.genre.value.toLowerCase();
+
+  // Remove 'active' class from all filter buttons
+  filterBtns.forEach(btn => btn.classList.remove("active"));
+
+  // Add 'active' class to the clicked button if it's a button
+  if (this.tagName === 'BUTTON') {
+    this.classList.add("active");
   }
 
-  // Update active classes for Type filters (desktop and select)
-  document.querySelectorAll("[data-filter-cat='type']").forEach(btn => {
-    if (btn.dataset.filterValue === currentFilterType) {
-      btn.classList.add("active");
-      if (btn.dataset.filterBtnType) lastClickedBtnType = btn; // Update for desktop
-    } else {
-      btn.classList.remove("active");
-    }
-  });
-  if (selectValueType) selectValueType.textContent = currentFilterType;
 
-  // Update active classes for Genre filters (desktop and select)
-  document.querySelectorAll("[data-filter-cat='genre']").forEach(btn => {
-    if (btn.dataset.filterValue === currentFilterGenre) {
-      btn.classList.add("active");
-      if (btn.dataset.filterBtnGenre) lastClickedBtnGenre = btn; // Update for desktop
-    } else {
-      btn.classList.remove("active");
-    }
-  });
-  if (selectValueGenre) selectValueGenre.textContent = currentFilterGenre;
-  
-  // Filter project items
-  if (!filterItems) filterItems = document.querySelectorAll(".project-item");
+  // Update filter values based on the event target
+  if (event.target.dataset.select === 'type') {
+    filterSelects.type.value = event.target.dataset.filterValue;
+  } else if (event.target.dataset.select === 'genre') {
+    filterSelects.genre.value = event.target.dataset.filterValue;
+  }
 
-  filterItems.forEach(item => {
-    const projectTypes = item.dataset.projectTypes ? item.dataset.projectTypes.split('%%') : [];
-    const projectGenres = item.dataset.projectGenres ? item.dataset.projectGenres.split('%%') : [];
 
-    const typeMatch = (currentFilterType === "Alle Typen" || projectTypes.includes(currentFilterType));
-    const genreMatch = (currentFilterGenre === "Alle Genres" || projectGenres.includes(currentFilterGenre));
+  const currentSelectedType = filterSelects.type.value.toLowerCase();
+  const currentSelectedGenre = filterSelects.genre.value.toLowerCase();
 
-    if (typeMatch && genreMatch) {
-      item.style.display = ""; 
-      item.classList.add("active"); // Ensure it's styled as active/visible
-      item.classList.remove("hide"); 
-    } else {
-      item.style.display = "none"; 
-      item.classList.remove("active");
-      item.classList.add("hide");
-    }
+  // Update filter button states
+  updateFilterStates(projects, currentSelectedType, currentSelectedGenre);
+
+
+  const filteredProjects = projects.filter(project => {
+    const projectType = project.type.toLowerCase();
+    const projectGenres = project.tags.map(tag => tag.toLowerCase());
+
+    const typeMatch = currentSelectedType === "alle typen" || projectType === currentSelectedType;
+    const genreMatch = currentSelectedGenre === "alle genres" || projectGenres.includes(currentSelectedGenre);
+
+    return typeMatch && genreMatch;
   });
 
-  updateFilterStates();
+  addProjectItems(filteredProjects);
+
+  // Hide the "no results" message initially
+  const noResultsMessage = document.getElementById('no-results-message');
+  if (noResultsMessage) {
+    noResultsMessage.style.display = 'none';
+  }
+
+  if (filteredProjects.length === 0) {
+    // Instead of showing a message, we rely on the disabled filter options
+    // to guide the user.
+    // If you still want a message, you can re-enable it here.
+    // For example:
+    // if (noResultsMessage) {
+    //   noResultsMessage.style.display = 'block';
+    // }
+  }
 };
 
-function updateFilterStates() {
-    if (!allProjects) return; // Guard clause if projects haven't loaded
+/**
+ * Updates the enabled/disabled state of filter options.
+ */
+const updateFilterStates = function (allProjects, activeType, activeGenre) {
+  const typeOptions = document.querySelectorAll('.filter-select[data-select="type"] .select-item, .filter-btn[data-select-value="type"]');
+  const genreOptions = document.querySelectorAll('.filter-select[data-select="genre"] .select-item, .filter-btn[data-select-value="genre"]');
 
-    const typeFilterElements = document.querySelectorAll("[data-filter-cat='type']");
-    const genreFilterElements = document.querySelectorAll("[data-filter-cat='genre']");
+  // Helper function to check if a project matches a potential filter combination
+  const hasMatchingProject = (project, type, genre) => {
+    const projectTypeMatch = type === "alle typen" || project.type.toLowerCase() === type;
+    const projectGenreMatch = genre === "alle genres" || project.tags.map(tag => tag.toLowerCase()).includes(genre);
+    return projectTypeMatch && projectGenreMatch;
+  };
 
-    typeFilterElements.forEach(button => {
-        const buttonValue = button.dataset.filterValue;
-        let count = 0;
-        allProjects.forEach(project => {
-            const projectMatchesThisType = (buttonValue === "Alle Typen" || project.types.includes(buttonValue));
-            const projectMatchesCurrentGenre = (currentFilterGenre === "Alle Genres" || project.genres.includes(currentFilterGenre));
-            if (projectMatchesThisType && projectMatchesCurrentGenre) {
-                count++;
-            }
-        });
-        button.disabled = count === 0;
-        if (count === 0) button.classList.add('disabled-filter'); else button.classList.remove('disabled-filter');
-    });
-
-    genreFilterElements.forEach(button => {
-        const buttonValue = button.dataset.filterValue;
-        let count = 0;
-        allProjects.forEach(project => {
-            const projectMatchesThisGenre = (buttonValue === "Alle Genres" || project.genres.includes(buttonValue));
-            const projectMatchesCurrentType = (currentFilterType === "Alle Typen" || project.types.includes(currentFilterType));
-            if (projectMatchesThisGenre && projectMatchesCurrentType) {
-                count++;
-            }
-        });
-        button.disabled = count === 0;
-        if (count === 0) button.classList.add('disabled-filter'); else button.classList.remove('disabled-filter');
-    });
-}
-
-
-// Initial load functions
-window.addEventListener('load', async () => {
-  loadTeamMembers();
-  await loadEvents(); // Ensure events are loaded
-  await loadProjects(); // Load projects, create filters
-
-  // Initial display of projects (all should be visible by default from projectLi.classList.add("active"))
-  // and currentFilterType/Genre are "Alle Typen"/"Alle Genres"
-  
-  // Set initial active state for "Alle Typen" and "Alle Genres" buttons/selects
-  // This is handled by createFilterButton and filterFunc's active class management
-  if (selectValueType) selectValueType.textContent = "Alle Typen";
-  if (selectValueGenre) selectValueGenre.textContent = "Alle Genres";
-  
-  // Call filterFunc once to ensure correct initial display and active states
-  // This will also call updateFilterStates for the first time.
-  filterFunc(currentFilterType, 'type'); 
-  // No, this might not be ideal if filterFunc changes currentFilterType.
-  // Instead, directly call updateFilterStates after loadProjects has run and set up initial filters.
-  // loadProjects already calls initializePortfolioSelectorsAndListeners which sets up buttons.
-  // The default active buttons ("Alle Typen", "Alle Genres") are set by createFilterButton.
-  // So, just call updateFilterStates.
-  updateFilterStates();
-});
-
-// Ensure that the portfolio page is active by default if no other page is specified (e.g. by hash)
-// Or, if you want "Über uns" to be default:
-document.addEventListener('DOMContentLoaded', () => {
-  const defaultPage = 'über uns'; // Change to 'portfolio' or any other default
-  let pageActivated = false;
-  pages.forEach(page => {
-    if (page.classList.contains('active')) {
-      pageActivated = true;
+  // Update type options
+  typeOptions.forEach(option => {
+    const optionValue = (option.dataset.filterValue || option.textContent.trim()).toLowerCase();
+    if (optionValue === "alle typen") {
+      option.disabled = false; // "Alle Typen" should never be disabled
+      if (option.classList.contains('select-item')) option.classList.remove('disabled');
+      return;
+    }
+    const wouldHaveResults = allProjects.some(project => hasMatchingProject(project, optionValue, activeGenre));
+    option.disabled = !wouldHaveResults;
+    if (option.classList.contains('select-item')) {
+        if (wouldHaveResults) {
+            option.classList.remove('disabled');
+        } else {
+            option.classList.add('disabled');
+        }
     }
   });
 
-  if (!pageActivated) {
-    for (let i = 0; i < pages.length; i++) {
-      if (pages[i].dataset.page === defaultPage) {
-        pages[i].classList.add("active");
-        navigationLinks[i].classList.add("active"); // Also activate corresponding nav link
-      } else {
-        pages[i].classList.remove("active");
-        navigationLinks[i].classList.remove("active");
-      }
+  // Update genre options
+  genreOptions.forEach(option => {
+    const optionValue = (option.dataset.filterValue || option.textContent.trim()).toLowerCase();
+    if (optionValue === "alle genres") {
+      option.disabled = false; // "Alle Genres" should never be disabled
+      if (option.classList.contains('select-item')) option.classList.remove('disabled');
+      return;
     }
+    const wouldHaveResults = allProjects.some(project => hasMatchingProject(project, activeType, optionValue));
+    option.disabled = !wouldHaveResults;
+     if (option.classList.contains('select-item')) {
+        if (wouldHaveResults) {
+            option.classList.remove('disabled');
+        } else {
+            option.classList.add('disabled');
+        }
+    }
+  });
+};
+
+
+/**
+ * Load projects from JSON and populate the portfolio section.
+ */
+const loadProjects = async () => {
+  try {
+    const res = await fetch('assets/js/projekte.json');
+    projects = await res.json(); // Store projects globally
+
+    // Populate filter buttons and select options
+    const projectTypes = ["Alle Typen", ...new Set(projects.map(project => project.type))];
+    const projectGenres = ["Alle Genres", ...new Set(projects.flatMap(project => project.tags))];
+
+    const typeFilterButtonsContainer = document.querySelector('.filter-list[data-filter="type"]');
+    const genreFilterButtonsContainer = document.querySelector('.filter-list[data-filter="genre"]');
+    const typeSelectItemsContainer = document.querySelector('.select-list[data-select="type"]');
+    const genreSelectItemsContainer = document.querySelector('.select-list[data-select="genre"]');
+
+    // Clear existing filter buttons and select options
+    if (typeFilterButtonsContainer) typeFilterButtonsContainer.innerHTML = '';
+    if (genreFilterButtonsContainer) genreFilterButtonsContainer.innerHTML = '';
+    if (typeSelectItemsContainer) typeSelectItemsContainer.innerHTML = '';
+    if (genreSelectItemsContainer) genreSelectItemsContainer.innerHTML = '';
+
+
+    projectTypes.forEach(type => {
+      if (typeFilterButtonsContainer) {
+        const button = document.createElement('button');
+        button.className = `filter-btn ${type === "Alle Typen" ? "active" : ""}`;
+        button.textContent = type;
+        button.dataset.filterValue = type; // Store the original case for display
+        button.dataset.selectValue = "type"; // To identify which select to update
+        button.addEventListener("click", filterFunc);
+        typeFilterButtonsContainer.appendChild(button);
+      }
+      if (typeSelectItemsContainer) {
+        const li = document.createElement('li');
+        li.className = 'select-item';
+        li.textContent = type;
+        li.dataset.filterValue = type; // Store the original case for display
+        li.addEventListener('click', function() {
+          filterSelects.type.value = this.dataset.filterValue;
+          filterSelects.type.dispatchEvent(new Event('change', { bubbles: true })); // Trigger change for filterFunc
+          // Manually trigger filterFunc for select items as they don't have the button's context
+          filterFunc.call(this, { target: this });
+        });
+        typeSelectItemsContainer.appendChild(li);
+      }
+    });
+
+    projectGenres.forEach(genre => {
+      if (genreFilterButtonsContainer) {
+        const button = document.createElement('button');
+        button.className = `filter-btn ${genre === "Alle Genres" ? "active" : ""}`;
+        button.textContent = genre;
+        button.dataset.filterValue = genre; // Store the original case for display
+        button.dataset.selectValue = "genre"; // To identify which select to update
+        button.addEventListener("click", filterFunc);
+        genreFilterButtonsContainer.appendChild(button);
+      }
+      if (genreSelectItemsContainer) {
+        const li = document.createElement('li');
+        li.className = 'select-item';
+        li.textContent = genre;
+        li.dataset.filterValue = genre; // Store the original case for display
+        li.addEventListener('click', function() {
+          filterSelects.genre.value = this.dataset.filterValue;
+          filterSelects.genre.dispatchEvent(new Event('change', { bubbles: true })); // Trigger change for filterFunc
+           // Manually trigger filterFunc for select items
+          filterFunc.call(this, { target: this });
+        });
+        genreSelectItemsContainer.appendChild(li);
+      }
+    });
+
+    // Re-assign filterBtns and selectItems after dynamic creation
+    filterBtns = document.querySelectorAll("[data-filter-btn]"); // This might need adjustment if buttons are not data-filter-btn
+    // A more robust way to get all filter buttons:
+    filterBtns = document.querySelectorAll(".filter-btn");
+
+
+    selectItems = document.querySelectorAll("[data-select-item]"); // This might need adjustment
+
+    // Initial population of projects
+    addProjectItems(projects);
+    updateFilterStates(projects, "alle typen", "alle genres"); // Initial filter state update
+
+  } catch (error) {
+    console.error("Fehler beim Laden der Projekte:", error);
   }
+};
+
+// Initial load functions
+window.addEventListener('load', () => {
+  loadEvents();
+  loadProjects().then(() => {
+    initializePortfolioSelectorsAndListeners(); // Ensure this is still called
+  });
+  loadTeamMembers(); // Add this call
+});
+
+// Event listeners for filter buttons and select dropdowns
+filterBtns.forEach(btn => {
+  btn.addEventListener("click", filterFunc);
+});
+
+Object.values(filterSelects).forEach(select => {
+  // Listen for 'change' event, which is triggered when select value is programmatically changed
+  select.addEventListener("change", function(event) {
+    // We need to call filterFunc with a context that mimics a button click or select item click
+    // to ensure `this` is correctly set and we can determine which filter was changed.
+    // We'll create a mock event object.
+    const mockEvent = { target: { dataset: {} } };
+    if (this.dataset.select === 'type') {
+      mockEvent.target.dataset.select = 'type';
+      mockEvent.target.dataset.filterValue = this.value;
+    } else if (this.dataset.select === 'genre') {
+      mockEvent.target.dataset.select = 'genre';
+      mockEvent.target.dataset.filterValue = this.value;
+    }
+    filterFunc.call(this, mockEvent); // 'this' will be the select element
+  });
 });

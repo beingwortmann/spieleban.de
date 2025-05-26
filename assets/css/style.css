@@ -1146,7 +1146,7 @@ main {
   filter: grayscale(1) invert(1);
 }
 
-.contact-form { margin-bottom: 10px; }
+.contact-form { margin-bottom: 30px; }
 
 .form-title { margin-bottom: 20px; }
 
@@ -1231,7 +1231,7 @@ textarea.form-input::-webkit-resizer { display: none; }
 
 
 /*-----------------------------------*\
-  #RESPONSIVE
+  #MEDIA QUERIES
 \*-----------------------------------*/
 
 /**
@@ -1884,6 +1884,23 @@ textarea.form-input::-webkit-resizer { display: none; }
 
   .timeline-text { max-width: 700px; }
 
+}
+
+/* Neue Stile für deaktivierte Filter */
+.filter-list button.disabled,
+.select-item button.disabled {
+  color: var(--light-gray-70) !important; /* Unterscheidet sich von normalem Hover/Focus */
+  opacity: 0.5;
+  pointer-events: none;
+  cursor: default;
+}
+
+/* Anpassung für Impressum Textfarbe */
+.impressum-section p {
+  color: var(--light-gray); /* Oder var(--light-gray-70), je nach gewünschter Standard-Absatzfarbe */
+  font-size: var(--fs-6); /* Konsistente Schriftgröße mit anderem Fließtext */
+  line-height: 1.6;
+  margin-bottom: 15px; /* Einheitlicher Abstand wie bei anderen Absätzen */
 }
 
 #no-results-message {
