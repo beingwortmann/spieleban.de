@@ -325,20 +325,21 @@ window.addEventListener('DOMContentLoaded', function() {
   renderEvents();
   renderPortfolio();
 
-  // Navigation-Fix: Nur ein Tab sichtbar
+  // Navigation-Fix: Tabs und Seiten anhand data-page-Attribut
   const navigationLinks = document.querySelectorAll('[data-nav-link]');
   const pages = document.querySelectorAll('[data-page]');
-  navigationLinks.forEach((nav, idx) => {
+  navigationLinks.forEach((nav) => {
     nav.addEventListener('click', function() {
-      pages.forEach((page, i) => {
-        if (i === idx) {
+      const pageName = nav.textContent.trim().toLowerCase().replace(/ /g, '');
+      pages.forEach(page => {
+        if (page.dataset.page === pageName || page.classList.contains(pageName)) {
           page.classList.add('active');
-          nav.classList.add('active');
         } else {
           page.classList.remove('active');
-          navigationLinks[i].classList.remove('active');
         }
       });
+      navigationLinks.forEach(link => link.classList.remove('active'));
+      nav.classList.add('active');
       window.scrollTo(0, 0);
     });
   });
