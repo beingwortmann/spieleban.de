@@ -166,9 +166,9 @@ function sortEventList(listContainer, ascending = true) {
 
 // Team members data
 const teamMembers = [
-  { name: "Sebastian Motsch", role: "Game Design & Development", image: "./assets/images/BastiMemojiRemovedBG.png" },
-  { name: "Luise Motsch", role: "Illustration & Art Direction", image: "./assets/images/IsiMemojiRemovedBG.png" },
-  { name: "Jannik Wortmann", role: "Project Management & Narrative Design", image: "./assets/images/JannikMemojiRemovedBG.png" }
+  { name: "Sebastian Motsch", role: "Ingenieur in der Triebwerksentwicklung – Bringt analytisches Denken und Präzision in unsere Spielmechaniken", image: "./assets/images/BastiMemojiRemovedBG.png" },
+  { name: "Luise Motsch", role: "UX/UI Designerin – Sorgt für ansprechende Optik und intuitive Spielerfahrungen", image: "./assets/images/IsiMemojiRemovedBG.png" },
+  { name: "Jannik Wortmann", role: "Software Entwickler und IT-Administrator – Verantwortlich für digitale Umsetzungen und technische Infrastruktur", image: "./assets/images/JannikMemojiRemovedBG.png" }
 ];
 
 // Load and display team members
