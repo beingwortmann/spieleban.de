@@ -23,8 +23,7 @@
     "image": "./assets/images/project-3.jpg",
     "types": ["Kenner- und Expertenspiel"],
     "genres": ["Abstraktes Spiel"],
-    "description": "Ein modernes Update des Klassikers Backgammon.",
-    "markdownFile": "./assets/markdown/packgammon.md"
+    "description": "Ein modernes Update des Klassikers Backgammon."
   },
   {
     "id": "dnd",
