@@ -943,11 +943,16 @@ main {
   opacity: 0.5;
 }
 
+/* Remove pointer-events: none; and opacity to make buttons clickable */
 .filter-item button {
-  color: var(--light-gray); /* Or any color that indicates disabled state */
-  cursor: not-allowed;
-  opacity: 0.5;
-  pointer-events: none; /* Prevents click events on disabled button */
+  color: var(--light-gray);
+  cursor: pointer; /* Ensure cursor is pointer */
+  opacity: 1; /* Ensure full opacity */
+  /* pointer-events: none; */ /* Removed */
+}
+
+.filter-item button.active {
+  color: var(--orange-yellow-crayola); /* Style for active filter button */
 }
 
 .project-list {
