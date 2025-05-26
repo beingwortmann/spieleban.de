@@ -207,8 +207,9 @@ async function loadProjects() {
     const projectListContainer = document.querySelector(".project-list");
     const filterListTypeContainer = document.getElementById("filter-list-type");
     const filterListGenreContainer = document.getElementById("filter-list-genre");
-    const selectListTypeContainer = document.querySelector("[data-select-type] .select-list");
-    const selectListGenreContainer = document.querySelector("[data-select-genre] .select-list");
+    const selectListTypeContainer = document.getElementById("select-list-type"); // Corrected
+    const selectListGenreContainer = document.getElementById("select-list-genre"); // Corrected
+
 
     if (!projectListContainer || !filterListTypeContainer || !filterListGenreContainer || !selectListTypeContainer || !selectListGenreContainer) {
       console.error("Einige Projekt- oder Filtercontainer wurden nicht gefunden.");
