@@ -59,6 +59,7 @@ for (let i = 0; i < navigationLinks.length; i++) {
 const form = document.querySelector("[data-form]");
 const formInputs = document.querySelectorAll("[data-form-input]");
 const formBtn = document.querySelector("[data-form-btn]");
+const successMessage = document.getElementById("success-message");
 
 // add event to all form input field
 if (form) {
@@ -72,6 +73,28 @@ if (form) {
     });
   }
 }
+
+form.addEventListener("submit", function (e) {
+  e.preventDefault(); 
+
+
+  if (form.checkValidity()) {
+
+    successMessage.style.display = "block";
+
+
+    formInputs.forEach(input => {
+      if (input.value) {
+        input.value = ''; 
+      }
+    });
+
+
+    setTimeout(() => {
+      successMessage.style.display = 'none';
+    }, 20000); 
+  }
+});
 
 
 // Load and display events
