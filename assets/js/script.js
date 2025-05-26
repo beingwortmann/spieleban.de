@@ -157,3 +157,171 @@ for (let i = 0; i < navigationLinks.length; i++) {
 
   });
 }
+
+// Datenstruktur für Projekte und Veranstaltungen
+const projekte = [
+  {
+    title: "Käse³",
+    image: "./assets/images/project-kaese3.png",
+    tags: ["kartenspiel", "familienspiele"],
+    main: ["familienspiele"],
+    description: "Ein schnelles, witziges Kartenspiel rund um Käse und Würfelglück.",
+  },
+  {
+    title: "Phantom",
+    image: "./assets/images/project-phantom.png",
+    tags: ["wuerfelspiel", "kenner-expertenspiele"],
+    main: ["kenner-expertenspiele"],
+    description: "Würfellaufspiel mit taktischen Elementen und Geisterjagd.",
+  },
+  {
+    title: "Packgammon",
+    image: "./assets/images/project-packgammon.png",
+    tags: ["abstrakt", "kennerspiel"],
+    main: ["kenner-expertenspiele"],
+    description: "Backgammon neu gedacht – modern, schnell, spannend.",
+  },
+  {
+    title: "DnD-Projekt (Arbeitstitel)",
+    image: "./assets/images/project-dnd.png",
+    tags: ["penpaper", "kenner-expertenspiele", "rollwrite", "rollenspiel"],
+    main: ["kenner-expertenspiele"],
+    description: "Großes, DnD-kompatibles Rollenspielprojekt für Selbstveröffentlichung.",
+  },
+];
+
+const veranstaltungen = [
+  {
+    title: "Göttingen Spieleautor:innentreffen 2025",
+    dateStart: "2025-05-31",
+    dateEnd: "2025-06-01",
+    ort: "Göttingen",
+    projekte: ["Phantom", "Käse³"],
+  },
+  {
+    title: "Berlin Brettspiel Con 2025",
+    dateStart: "2025-08-01",
+    dateEnd: "2025-08-03",
+    ort: "Berlin",
+    projekte: ["DnD-Projekt (Arbeitstitel)", "Phantom", "Käse³", "Packgammon"],
+  },
+  {
+    title: "Brettspiel Con Berlin 2024",
+    dateStart: "2024-07-19",
+    dateEnd: "2024-07-21",
+    ort: "Berlin",
+    projekte: ["Phantom"],
+  },
+];
+
+// Hilfsfunktion: Datumsvergleich
+function isFuture(dateStr) {
+  const today = new Date();
+  const end = new Date(dateStr);
+  return end >= today;
+}
+
+// Veranstaltungen dynamisch einsortieren
+function renderEvents() {
+  const upcoming = [];
+  const past = [];
+  veranstaltungen.forEach(ev => {
+    if (isFuture(ev.dateEnd)) {
+      upcoming.push(ev);
+    } else {
+      past.push(ev);
+    }
+  });
+  // Sortierung: nächste zuerst
+  upcoming.sort((a, b) => new Date(a.dateStart) - new Date(b.dateStart));
+  past.sort((a, b) => new Date(b.dateStart) - new Date(a.dateStart));
+  const upList = document.getElementById('upcoming-events-list');
+  const pastList = document.getElementById('past-events-list');
+  upList.innerHTML = '';
+  pastList.innerHTML = '';
+  for (const ev of upcoming) {
+    upList.innerHTML += `<li class="timeline-item">
+      <h4 class="h4 timeline-item-title">${ev.title}</h4>
+      <span>${formatDate(ev.dateStart)} – ${formatDate(ev.dateEnd)}</span>
+      <p class="timeline-text">Ort: ${ev.ort}<br>Mit dabei: ${ev.projekte.map(p => `<b>${p}</b>`).join(', ')}</p>
+    </li>`;
+  }
+  for (const ev of past) {
+    pastList.innerHTML += `<li class="timeline-item">
+      <h4 class="h4 timeline-item-title">${ev.title}</h4>
+      <span>${formatDate(ev.dateStart)} – ${formatDate(ev.dateEnd)}</span>
+      <p class="timeline-text">Ort: ${ev.ort}<br>Mit dabei: ${ev.projekte.map(p => `<b>${p}</b>`).join(', ')}</p>
+    </li>`;
+  }
+}
+function formatDate(str) {
+  const d = new Date(str);
+  return d.toLocaleDateString('de-DE');
+}
+
+// Portfolio dynamisch rendern mit zwei Filtergruppen
+function renderPortfolio() {
+  const list = document.getElementById('project-list');
+  list.innerHTML = '';
+  projekte.forEach(proj => {
+    const tags = proj.tags.map(t => `<span class='project-tag'>${tagLabel(t)}</span>`).join(' ');
+    list.innerHTML += `
+      <li class="project-item active" data-filter-item data-main="${proj.main.join(' ')}" data-tags="${proj.tags.join(' ')}">
+        <a href="#">
+          <figure class="project-img">
+            <img src="${proj.image}" alt="${proj.title}" loading="lazy">
+          </figure>
+          <h3 class="project-title">${proj.title}</h3>
+          <p class="project-category">${proj.description}</p>
+          <div class="project-tags">${tags}</div>
+        </a>
+      </li>
+    `;
+  });
+}
+function tagLabel(tag) {
+  const map = {
+    kinderspiele: 'Kinderspiele', familienspiele: 'Familienspiele', 'kenner-expertenspiele': 'Kenner-/Expertenspiele',
+    penpaper: 'Pen and Paper', abstrakt: 'Abstraktes Spiel', kartenspiel: 'Kartenspiel', wuerfelspiel: 'Würfelspiel',
+    logik: 'Logik-/Rätselspiel', kommunikation: 'Kommunikations-/Partyspiel', rollwrite: 'Roll & Write',
+    geschick: 'Geschicklichkeitsspiel', kennerspiel: 'Kennerspiel', socialdeduction: 'Social Deduction', rollenspiel: 'Rollenspiel'
+  };
+  return map[tag] || tag;
+}
+
+// Filterlogik für zwei Filtergruppen
+let selectedMain = 'all';
+let selectedTag = 'all';
+
+document.getElementById('main-filter-list').addEventListener('click', function(e) {
+  if (e.target.tagName === 'BUTTON') {
+    selectedMain = e.target.dataset.mainFilter;
+    Array.from(this.querySelectorAll('button')).forEach(btn => btn.classList.remove('active'));
+    e.target.classList.add('active');
+    filterProjects();
+  }
+});
+document.getElementById('tag-filter-list').addEventListener('click', function(e) {
+  if (e.target.tagName === 'BUTTON') {
+    selectedTag = e.target.dataset.tagFilter;
+    Array.from(this.querySelectorAll('button')).forEach(btn => btn.classList.remove('active'));
+    e.target.classList.add('active');
+    filterProjects();
+  }
+});
+function filterProjects() {
+  const items = document.querySelectorAll('#project-list .project-item');
+  items.forEach(item => {
+    const mains = item.dataset.main.split(' ');
+    const tags = item.dataset.tags.split(' ');
+    let show = true;
+    if (selectedMain !== 'all' && !mains.includes(selectedMain)) show = false;
+    if (selectedTag !== 'all' && !tags.includes(selectedTag)) show = false;
+    item.style.display = show ? '' : 'none';
+  });
+}
+
+window.addEventListener('DOMContentLoaded', function() {
+  renderEvents();
+  renderPortfolio();
+});
