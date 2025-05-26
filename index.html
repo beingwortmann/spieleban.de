@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
 
 <head>
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>vCard - Personal Portfolio</title>
+  <title>Spieleban.de - Kreativkollektiv für Brettspielentwicklung</title>
 
   <!--
     - favicon
@@ -23,6 +23,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
 </head>
 
 <body>
@@ -42,53 +43,78 @@
       <div class="sidebar-info">
 
         <figure class="avatar-box">
-          <img src="./assets/images/my-avatar.png" alt="Spieleban.de" width="80">
+          <img src="./assets/images/my-avatar.png" alt="Spieleban.de Logo" width="80">
         </figure>
 
         <div class="info-content">
           <h1 class="name" title="Spieleban.de">Spieleban.de</h1>
-          <p class="title">Kreativ Kollektiv für Brettspiele aus Berlin</p>
+
+          <p class="title">Spielentwickler Team</p>
         </div>
 
         <button class="info_more-btn" data-sidebar-btn>
-          <span>Kontaktdaten anzeigen</span>
-          <ion-icon name="chevron-down"></ion-icon>
+          <span>Kontaktdetails</span>
+
+          <span class="material-symbols-outlined">expand_more</span>
         </button>
+
       </div>
 
       <div class="sidebar-info_more">
+
         <div class="separator"></div>
+
         <ul class="contacts-list">
+
           <li class="contact-item">
+
             <div class="icon-box">
-              <ion-icon name="mail-outline"></ion-icon>
+              <span class="material-symbols-outlined">contact_mail</span>
             </div>
+
             <div class="contact-info">
               <p class="contact-title">Kontakt</p>
-              <a href="#" class="contact-link" onclick="event.preventDefault();document.querySelector('[data-nav-link]:nth-child(4)').click();">Zur Kontaktseite</a>
+              <button class="contact-link" data-nav-link-contact style="background: none; border: none; padding: 0; margin: 0; font: inherit; color: var(--vegas-gold); cursor: pointer; text-align: left;">Zum Formular</button>
             </div>
+
           </li>
+
           <li class="contact-item">
+
             <div class="icon-box">
-              <ion-icon name="calendar-outline"></ion-icon>
+              <span class="material-symbols-outlined">calendar_today</span>
             </div>
+
             <div class="contact-info">
               <p class="contact-title">Gründung</p>
-              <time datetime="2021-01-01">2021</time>
+
+              <time datetime="2021">2021</time>
             </div>
+
           </li>
+
           <li class="contact-item">
+
             <div class="icon-box">
-              <ion-icon name="location-outline"></ion-icon>
+              <span class="material-symbols-outlined">location_on</span>
             </div>
+
             <div class="contact-info">
               <p class="contact-title">Standort</p>
+
               <address>Berlin, Deutschland</address>
             </div>
+
           </li>
+
         </ul>
+
         <div class="separator"></div>
-        <!-- Social-Links entfernt -->
+
+        <ul class="social-list">
+          <!-- Social Media Links entfernt -->
+        </ul>
+
       </div>
 
     </aside>
@@ -136,62 +162,81 @@
 
 
       <!--
-        - #ABOUT
+        - #ÜBER UNS
       -->
 
-      <article class="about  active" data-page="about">
+      <article class="about active" data-page="über uns">
+
         <header>
           <h2 class="h2 article-title">Über uns</h2>
         </header>
+
         <section class="about-text">
           <p>
-            Wir sind das Kreativ Kollektiv <b>Spieleban.de</b> aus Berlin. Gemeinsam entwickeln wir innovative Brettspiele für alle Altersgruppen – von schnellen Familienspielen bis zu komplexen Abenteuern für Kenner:innen.
+            Willkommen bei Spieleban.de! Wir sind ein kreatives Kollektiv aus Berlin, das mit Leidenschaft Brettspiele entwickelt.
+            Unser Name ist eine Hommage an die "Spielebande" und unsere Verbundenheit mit der deutschen Spielekultur.
+            Wir lieben es, komplexe Ideen in zugängliche, schöne und intuitive Spielerlebnisse zu verwandeln.
           </p>
+
           <p>
-            Unser Team: Sebastian Motsch (Ingenieur in der Triebwerksentwicklung), Luise Motsch (UX/UI Designerin) und Jannik Wortmann (Software Entwickler & IT-Administrator). Wir verbinden Technik, Design und Spielleidenschaft, um einzigartige Spielerlebnisse zu schaffen.
-          </p>
-          <p>
-            Aktuelle Projekte: <b>Käse³</b> (Kartenspiel), <b>Phantom</b> (Würfellaufspiel), <b>Packgammon</b> (Backgammon-Variante) und ein großes DnD-kompatibles Rollenspielprojekt.
+            Unser Ziel ist es, Spiele zu entwickeln, die nicht nur funktional und benutzerfreundlich sind, sondern auch
+            ästhetisch ansprechen und einen bleibenden Eindruck hinterlassen. Jedes unserer Projekte erhält eine persönliche Note,
+            um sicherzustellen, dass es sowohl fesselt als auch einfach zu erlernen ist. Wir möchten unsere Botschaften und
+            Identitäten auf die kreativste Weise zum Ausdruck bringen.
           </p>
         </section>
+
+
+        <!--
+          - service (Unser Team)
+        -->
+
         <section class="service">
-          <h3 class="h3 service-title">Was wir machen</h3>
+
+          <h3 class="h3 service-title">Unser Team</h3>
+
           <ul class="service-list">
+
             <li class="service-item">
               <div class="service-icon-box">
-                <img src="./assets/images/icon-design.svg" alt="design icon" width="40">
+                <img src="./assets/images/icon-dev.svg" alt="Development icon" width="40" style="filter: invert(75%) sepia(84%) saturate(438%) hue-rotate(359deg) brightness(101%) contrast(101%);">
               </div>
               <div class="service-content-box">
-                <h4 class="h4 service-item-title">Spielentwicklung</h4>
+                <h4 class="h4 service-item-title">Sebastian Motsch</h4>
                 <p class="service-item-text">
-                  Von der ersten Idee bis zum Prototypen: Wir entwickeln Brett- und Kartenspiele mit Liebe zum Detail.
+                  Ingenieur in der Triebwerksentwicklung – Bringt analytisches Denken und Präzision in unsere Spielmechaniken.
                 </p>
               </div>
             </li>
+
             <li class="service-item">
               <div class="service-icon-box">
-                <img src="./assets/images/icon-dev.svg" alt="Prototyping icon" width="40">
+                <img src="./assets/images/icon-design.svg" alt="Design icon" width="40" style="filter: invert(75%) sepia(84%) saturate(438%) hue-rotate(359deg) brightness(101%) contrast(101%);">
               </div>
               <div class="service-content-box">
-                <h4 class="h4 service-item-title">Prototyping & Testen</h4>
+                <h4 class="h4 service-item-title">Luise Motsch</h4>
                 <p class="service-item-text">
-                  Wir testen und verbessern unsere Spiele iterativ mit echten Spieler:innen.
+                  UX/UI Designerin – Sorgt für ansprechende Optik und intuitive Spielerfahrungen.
                 </p>
               </div>
             </li>
+
             <li class="service-item">
               <div class="service-icon-box">
-                <img src="./assets/images/icon-app.svg" alt="Design icon" width="40">
+                <img src="./assets/images/icon-app.svg" alt="Application icon" width="40" style="filter: invert(75%) sepia(84%) saturate(438%) hue-rotate(359deg) brightness(101%) contrast(101%);">
               </div>
               <div class="service-content-box">
-                <h4 class="h4 service-item-title">Design & Illustration</h4>
+                <h4 class="h4 service-item-title">Jannik Wortmann</h4>
                 <p class="service-item-text">
-                  Modernes UX/UI, liebevolle Illustrationen und klare Regeln – alles aus einer Hand.
+                  Software Entwickler und IT-Administrator – Verantwortlich für digitale Umsetzungen und technische Infrastruktur.
                 </p>
               </div>
             </li>
+
           </ul>
+
         </section>
+        <!-- Testimonials und Clients Sektionen entfernt -->
       </article>
 
 
@@ -199,35 +244,45 @@
 
 
       <!--
-        - #RESUME
+        - #VERANSTALTUNGEN
       -->
 
-      <article class="resume" data-page="resume">
+      <article class="resume" data-page="veranstaltungen">
+
         <header>
           <h2 class="h2 article-title">Veranstaltungen</h2>
         </header>
+
         <section class="timeline">
+
           <div class="title-wrapper">
             <div class="icon-box">
-              <ion-icon name="calendar-outline"></ion-icon>
+              <span class="material-symbols-outlined">event</span>
             </div>
             <h3 class="h3">Anstehende Veranstaltungen</h3>
           </div>
+
           <ol class="timeline-list" id="upcoming-events-list">
-            <!-- Dynamisch gefüllt -->
+            <!-- Veranstaltungen werden dynamisch per JavaScript geladen -->
           </ol>
+
         </section>
+
         <section class="timeline">
+
           <div class="title-wrapper">
             <div class="icon-box">
-              <ion-icon name="calendar-outline"></ion-icon>
+              <span class="material-symbols-outlined">history</span>
             </div>
             <h3 class="h3">Vergangene Veranstaltungen</h3>
           </div>
+
           <ol class="timeline-list" id="past-events-list">
-            <!-- Dynamisch gefüllt -->
+            <!-- Veranstaltungen werden dynamisch per JavaScript geladen -->
           </ol>
+
         </section>
+        <!-- My Skills Sektion entfernt -->
       </article>
 
 
@@ -246,119 +301,111 @@
 
         <section class="projects">
 
-          <ul class="filter-list" id="main-filter-list">
+          <ul class="filter-list" id="filter-list-type">
             <li class="filter-item">
-              <button class="active" data-filter-btn data-main-filter="all">Alle</button>
+              <button class="active" data-filter-btn-type>Alle Typen</button>
             </li>
-
-            <li class="filter-item">
-              <button data-filter-btn data-main-filter="kinderspiele">Kinderspiele</button>
-            </li>
-
-            <li class="filter-item">
-              <button data-filter-btn data-main-filter="familienspiele">Familienspiele</button>
-            </li>
-
-            <li class="filter-item">
-              <button data-filter-btn data-main-filter="kenner-expertenspiele">Kenner- & Expertenspiele</button>
-            </li>
+            <!-- Weitere Filter-Buttons für Typ werden dynamisch per JS hinzugefügt -->
           </ul>
 
-          <ul class="filter-list" id="tag-filter-list">
+          <ul class="filter-list" id="filter-list-genre">
             <li class="filter-item">
-              <button class="active" data-filter-btn data-tag-filter="all">Alle</button>
+              <button class="active" data-filter-btn-genre>Alle Genres</button>
             </li>
-
-            <li class="filter-item">
-              <button data-filter-btn data-tag-filter="penpaper">Pen and Paper</button>
-            </li>
-
-            <li class="filter-item">
-              <button data-filter-btn data-tag-filter="abstrakt">Abstraktes Spiel</button>
-            </li>
-
-            <li class="filter-item">
-              <button data-filter-btn data-tag-filter="kartenspiel">Kartenspiel</button>
-            </li>
-
-            <li class="filter-item">
-              <button data-filter-btn data-tag-filter="wuerfelspiel">Würfelspiel</button>
-            </li>
-
-            <li class="filter-item">
-              <button data-filter-btn data-tag-filter="logik">Logik-/Rätselspiel</button>
-            </li>
-
-            <li class="filter-item">
-              <button data-filter-btn data-tag-filter="kommunikation">Kommunikations-/Partyspiel</button>
-            </li>
-
-            <li class="filter-item">
-              <button data-filter-btn data-tag-filter="rollwrite">Roll & Write</button>
-            </li>
-
-            <li class="filter-item">
-              <button data-filter-btn data-tag-filter="geschick">Geschicklichkeitsspiel</button>
-            </li>
-
-            <li class="filter-item">
-              <button data-filter-btn data-tag-filter="kennerspiel">Kennerspiel</button>
-            </li>
-
-            <li class="filter-item">
-              <button data-filter-btn data-tag-filter="socialdeduction">Social Deduction</button>
-            </li>
+            <!-- Weitere Filter-Buttons für Genre werden dynamisch per JS hinzugefügt -->
           </ul>
 
-          <ul class="project-list" id="project-list">
-            <!-- Projekte werden dynamisch eingefügt -->
+          <div class="filter-select-box">
+            <button class="filter-select" data-select-type>
+              <div class="select-value" data-select-value-type>Alle Typen</div>
+              <div class="select-icon">
+                <span class="material-symbols-outlined">arrow_drop_down</span>
+              </div>
+            </button>
+            <ul class="select-list" id="select-list-type">
+              <li class="select-item">
+                <button data-select-item-type>Alle Typen</button>
+              </li>
+              <!-- Weitere Select-Items für Typ werden dynamisch per JS hinzugefügt -->
+            </ul>
+          </div>
+           <div class="filter-select-box">
+            <button class="filter-select" data-select-genre>
+              <div class="select-value" data-select-value-genre>Alle Genres</div>
+              <div class="select-icon">
+                <span class="material-symbols-outlined">arrow_drop_down</span>
+              </div>
+            </button>
+            <ul class="select-list" id="select-list-genre">
+                <li class="select-item"><button data-select-item-genre>Alle Genres</button></li>
+                <!-- Weitere Select-Items für Genre werden dynamisch per JS hinzugefügt -->
+            </ul>
+          </div>
+
+
+          <ul class="project-list">
+            <!-- Projekt-Elemente werden hier dynamisch per JavaScript eingefügt -->
           </ul>
 
         </section>
 
       </article>
 
-
-
-
+      <!-- Blog Sektion entfernt -->
 
       <!--
         - #CONTACT
       -->
 
-      <article class="contact" data-page="contact">
+      <article class="contact" data-page="kontakt">
 
         <header>
-          <h2 class="h2 article-title">Contact</h2>
+          <h2 class="h2 article-title">Kontakt</h2>
         </header>
 
         <section class="mapbox" data-mapbox>
           <figure>
-            <iframe title="Berlin, Deutschland" src="https://www.openstreetmap.org/export/embed.html?bbox=13.0884%2C52.3383%2C13.7611%2C52.6755&amp;layer=mapnik" width="400" height="300"></iframe>
+            <!-- Hinweis: Die Karte zeigt aktuell einen Standardort.
+                 Um Berlin anzuzeigen, muss der iframe src angepasst werden.
+                 Beispiel für Berlin (prüfen und ggf. API Key einfügen, falls von Google Maps benötigt):
+            <iframe
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d155384.56617108818!2d13.259910775436!3d52.51703841980892!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47a84e373f035901%3A0x42120465b5e3b70!2sBerlin!5e0!3m2!1sde!2sde!4v1622488984937!5m2!1sde!2sde"
+              width="400" height="300" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+            -->
+            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d310515.4788091064!2d13.40495395!3d52.52000655!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47a84e373f035901%3A0x42120465b5e3b70!2sBerlin!5e0!3m2!1sde!2sde!4v1622488984937!5m2!1sde!2sde" width="400" height="300" loading="lazy"></iframe>
           </figure>
         </section>
 
         <section class="contact-form">
 
-          <h3 class="h3 form-title">Contact Form</h3>
+          <h3 class="h3 form-title">Kontaktformular</h3>
 
           <form action="#" class="form" data-form>
 
             <div class="input-wrapper">
-              <input type="text" name="fullname" class="form-input" placeholder="Full name" required data-form-input>
+              <input type="text" name="fullname" class="form-input" placeholder="Ihr Name" required data-form-input>
 
-              <input type="email" name="email" class="form-input" placeholder="Email address" required data-form-input>
+              <input type="email" name="email" class="form-input" placeholder="Ihre Email Adresse" required data-form-input>
             </div>
 
-            <textarea name="message" class="form-input" placeholder="Your Message" required data-form-input></textarea>
+            <textarea name="message" class="form-input" placeholder="Ihre Nachricht" required data-form-input></textarea>
 
             <button class="form-btn" type="submit" disabled data-form-btn>
-              <ion-icon name="paper-plane"></ion-icon>
-              <span>Send Message</span>
+              <span class="material-symbols-outlined">send</span>
+              <span>Nachricht senden</span>
             </button>
 
           </form>
 
+        </section>
+
+        <section class="impressum-section">
+          <h3 class="h3">Impressum</h3>
+          <p class="tmg-text"><strong>Angaben gemäß § 5 TMG und verantwortlich für den Inhalt nach § 55 Abs. 2 RStV:</strong></p>
+          <p>Sebastian Motsch, Luise Motsch, Jannik Wortmann</p>
+          <p>c/o Spieleban.de</p>
+          <p>Berlin, Deutschland</p>
+          <p>Per E-Mail erreichbar über das Kontaktformular auf dieser Webseite.</p>
         </section>
 
       </article>
@@ -367,14 +414,11 @@
 
   </main>
 
-
-
-
-
-
   <!--
     - custom js link
   -->
+  <script src="./assets/js/veranstaltungen.json"></script>
+  <script src="./assets/js/projekte.json"></script>
   <script src="./assets/js/script.js"></script>
 
   <!--
@@ -384,5 +428,4 @@
   <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
 
 </body>
-
 </html>

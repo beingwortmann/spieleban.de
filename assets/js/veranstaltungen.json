@@ -1,0 +1,26 @@
+[
+  {
+    "title": "Berlin Brettspiel Con 2025",
+    "dateStart": "2025-08-01",
+    "dateEnd": "2025-08-03",
+    "displayDate": "01.08.2025 – 03.08.2025",
+    "projects": ["DnD Projekt", "Phantom", "Käse³", "Packgammon"],
+    "location": "Berlin"
+  },
+  {
+    "title": "Göttingen Spieleautorentreffen 2025",
+    "dateStart": "2025-05-31",
+    "dateEnd": "2025-06-01",
+    "displayDate": "31.05.2025 – 01.06.2025",
+    "projects": ["Phantom", "Käse³"],
+    "location": "Göttingen"
+  },
+  {
+    "title": "Brettspiel Con Berlin 2024",
+    "dateStart": "2024-07-19",
+    "dateEnd": "2024-07-21",
+    "displayDate": "19.07.2024 – 21.07.2024",
+    "projects": ["Phantom (erstes Konzept)"],
+    "location": "Berlin"
+  }
+]

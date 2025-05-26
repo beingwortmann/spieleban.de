@@ -1,0 +1,34 @@
+[
+  {
+    "id": "kaese3",
+    "name": "Käse³",
+    "image": "./assets/images/project-1.jpg",
+    "types": ["Familienspiel"],
+    "genres": ["Kartenspiel", "Würfelspiel"],
+    "description": "Ein rasantes Kartenspiel mit Würfeln für die ganze Familie."
+  },
+  {
+    "id": "phantom",
+    "name": "Phantom",
+    "image": "./assets/images/project-2.png",
+    "types": ["Familienspiel", "Kennerspiel"],
+    "genres": ["Würfelspiel", "Laufspiel", "Social Deduction"],
+    "description": "Ein spannendes Würfellaufspiel mit geheimen Zielen."
+  },
+  {
+    "id": "packgammon",
+    "name": "Packgammon",
+    "image": "./assets/images/project-3.jpg",
+    "types": ["Kenner- und Expertenspiel"],
+    "genres": ["Abstraktes Spiel"],
+    "description": "Ein modernes Update des Klassikers Backgammon."
+  },
+  {
+    "id": "dnd",
+    "name": "DnD Projekt",
+    "image": "./assets/images/project-4.png",
+    "types": ["Kenner- und Expertenspiel"],
+    "genres": ["Pen and Paper", "Rollenspiel"],
+    "description": "Ein umfangreiches, DnD-kompatibles Projekt zur Selbstveröffentlichung."
+  }
+]
