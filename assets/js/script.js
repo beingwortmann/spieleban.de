@@ -194,8 +194,6 @@ function loadTeamMembers() {
   });
 }
 
-// Store all project data globally
-let allProjectsData = [];
 
 // Load and display projects and filters
 async function loadProjects() {
@@ -204,35 +202,54 @@ async function loadProjects() {
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
-    allProjectsData = await response.json(); // Store projects globally
+    const projects = await response.json();
 
-    const projectList = document.querySelector(".project-list");
-    const filterListType = document.getElementById("filter-list-type");
-    const filterListGenre = document.getElementById("filter-list-genre");
-    const selectListTypeContainer = document.querySelector("[data-select-type] + .select-list");
-    const selectListGenreContainer = document.querySelector("[data-select-genre] + .select-list");
+    const projectListContainer = document.querySelector(".project-list");
+    const filterListTypeContainer = document.getElementById("filter-list-type");
+    const filterListGenreContainer = document.getElementById("filter-list-genre");
+    const selectListTypeContainer = document.querySelector("[data-select-type] .select-list");
+    const selectListGenreContainer = document.querySelector("[data-select-genre] .select-list");
 
-    if (!projectList || !filterListType || !filterListGenre || !selectListTypeContainer || !selectListGenreContainer) {
-      console.error("Required DOM elements for projects or filters not found.");
+    if (!projectListContainer || !filterListTypeContainer || !filterListGenreContainer || !selectListTypeContainer || !selectListGenreContainer) {
+      console.error("Einige Projekt- oder Filtercontainer wurden nicht gefunden.");
       return;
     }
 
-    projectList.innerHTML = ''; // Clear existing projects
-    filterListType.innerHTML = '';
-    filterListGenre.innerHTML = '';
+    projectListContainer.innerHTML = '';
+    filterListTypeContainer.innerHTML = '';
+    filterListGenreContainer.innerHTML = '';
     selectListTypeContainer.innerHTML = '';
     selectListGenreContainer.innerHTML = '';
 
-    const types = new Set();
-    const genres = new Set();
-    allProjectsData.forEach(project => {
-      types.add(project.type);
-      genres.add(project.genre);
+    // Populate "Alle" options first
+    createFilterButton("Alle Typen", 'type', filterListTypeContainer, false, true);
+    createFilterButton("Alle Genres", 'genre', filterListGenreContainer, false, true);
+    createFilterButton("Alle Typen", 'type', selectListTypeContainer, true, true);
+    createFilterButton("Alle Genres", 'genre', selectListGenreContainer, true, true);
 
+
+    const allTypes = new Set();
+    const allGenres = new Set();
+    projects.forEach(project => {
+      project.types.forEach(type => allTypes.add(type));
+      project.genres.forEach(genre => allGenres.add(genre));
+    });
+
+    allTypes.forEach(type => {
+      createFilterButton(type, 'type', filterListTypeContainer);
+      createFilterButton(type, 'type', selectListTypeContainer, true);
+    });
+    allGenres.forEach(genre => {
+      createFilterButton(genre, 'genre', filterListGenreContainer);
+      createFilterButton(genre, 'genre', selectListGenreContainer, true);
+    });
+
+    projects.forEach(project => {
       const listItem = document.createElement("li");
-      listItem.classList.add("project-item");
-      listItem.dataset.filterType = project.type;
-      listItem.dataset.filterGenre = project.genre;
+      listItem.classList.add("project-item", "active");
+      listItem.dataset.type = project.types.join(',').toLowerCase();
+      listItem.dataset.genre = project.genres.join(',').toLowerCase();
+      listItem.dataset.id = project.id; // Store project ID
 
       listItem.innerHTML = `
         <a href="#">
@@ -243,60 +260,23 @@ async function loadProjects() {
             <img src="${project.image}" alt="${project.name}" loading="lazy">
           </figure>
           <h3 class="project-title">${project.name}</h3>
-          <p class="project-category">${project.type} - ${project.genre}</p>
+          <p class="project-category">${project.types.join(' / ')}</p>
+          <p class="project-category">${project.genres.join(' / ')}</p>
         </a>
       `;
-      projectList.appendChild(listItem);
-    });
-
-    // Create "Alle" options first
-    createFilterButton("Alle Typen", "type", filterListType, false);
-    createFilterButton("Alle Genres", "genre", filterListGenre, false);
-    createFilterButton("Alle Typen", "type", selectListTypeContainer, true);
-    createFilterButton("Alle Genres", "genre", selectListGenreContainer, true);
-
-    types.forEach(type => {
-      createFilterButton(type, "type", filterListType);
-      createFilterButton(type, "type", selectListTypeContainer, true);
-    });
-    genres.forEach(genre => {
-      createFilterButton(genre, "genre", filterListGenre);
-      createFilterButton(genre, "genre", selectListGenreContainer, true);
+      projectListContainer.appendChild(listItem);
     });
 
     filterItems = document.querySelectorAll(".project-item");
-    initializePortfolioSelectorsAndListeners(); 
-
-    currentFilterType = "Alle Typen";
-    currentFilterGenre = "Alle Genres";
-
-    // Set initial active visual states for buttons
-    if (filterBtnType) {
-        const alleTypenBtn = Array.from(filterBtnType).find(btn => btn.textContent === "Alle Typen");
-        if (alleTypenBtn) {
-            alleTypenBtn.classList.add("active");
-            lastClickedBtnType = alleTypenBtn;
-        }
-    }
-    if (filterBtnGenre) {
-        const alleGenresBtn = Array.from(filterBtnGenre).find(btn => btn.textContent === "Alle Genres");
-        if (alleGenresBtn) {
-            alleGenresBtn.classList.add("active");
-            lastClickedBtnGenre = alleGenresBtn;
-        }
-    }
-    
-    if (selectValueType) selectValueType.innerText = "Alle Typen";
-    if (selectValueGenre) selectValueGenre.innerText = "Alle Genres";
-    
-    applyCurrentFiltersAndRefreshStates(); // Initial display and filter state update
+    initializePortfolioSelectorsAndListeners(); // Make sure this is called after projects are loaded
+    updateFilterButtonsState(); // Initial update of button states
 
   } catch (error) {
     console.error("Fehler beim Laden der Projektdaten:", error);
   }
 }
 
-function createFilterButton(value, category, container, isSelect = false) {
+function createFilterButton(value, category, container, isSelect = false, isActive = false) {
   const listItem = document.createElement("li");
   if (!isSelect) {
     listItem.classList.add("filter-item");
@@ -307,12 +287,16 @@ function createFilterButton(value, category, container, isSelect = false) {
   const button = document.createElement("button");
   button.textContent = value;
   if (category === 'type') {
-    if (isSelect) button.dataset.selectItemType = value;
-    else button.dataset.filterBtnType = value;
+    button.dataset.filterBtnType = true; // For desktop/button filters
+    if (isSelect) button.dataset.selectItemType = true; // For select/dropdown filters
   }
   if (category === 'genre') {
-    if (isSelect) button.dataset.selectItemGenre = value;
-    else button.dataset.filterBtnGenre = value;
+    button.dataset.filterBtnGenre = true; // For desktop/button filters
+    if (isSelect) button.dataset.selectItemGenre = true; // For select/dropdown filters
+  }
+
+  if (isActive) {
+    button.classList.add("active");
   }
 
   listItem.appendChild(button);
@@ -330,11 +314,9 @@ let lastClickedBtnType, lastClickedBtnGenre;
 function initializePortfolioSelectorsAndListeners() {
     selectType = document.querySelector("[data-select-type]");
     selectValueType = document.querySelector("[data-select-value-type]");
-    // selectItemsType will be populated by loadProjects, then queried in addEventListenersToFilterButtons
 
     selectGenre = document.querySelector("[data-select-genre]");
     selectValueGenre = document.querySelector("[data-select-value-genre]");
-    // selectItemsGenre will be populated by loadProjects, then queried in addEventListenersToFilterButtons
 
     if (selectType) {
         selectType.addEventListener("click", function () { elementToggleFunc(this); });
@@ -342,7 +324,7 @@ function initializePortfolioSelectorsAndListeners() {
     if (selectGenre) {
         selectGenre.addEventListener("click", function () { elementToggleFunc(this); });
     }
-    addEventListenersToFilterButtons();
+    addEventListenersToFilterButtons(); // Call here after buttons are potentially created
 }
 
 
@@ -357,39 +339,67 @@ function addEventListenersToFilterButtons() {
 
     filterBtnType.forEach(btn => {
         btn.addEventListener("click", function () {
-            if (this.disabled) return; // Do nothing if button is disabled
-            if (lastClickedBtnType) lastClickedBtnType.classList.remove("active");
+            filterByType(this.textContent);
+            filterBtnType.forEach(b => b.classList.remove("active"));
             this.classList.add("active");
-            lastClickedBtnType = this;
-            filterFunc(this.textContent, "type");
+            if (selectValueType) selectValueType.textContent = this.textContent;
+            // Sync select dropdown
+            selectItemsType.forEach(item => {
+                if (item.textContent === this.textContent) {
+                    item.classList.add("active");
+                } else {
+                    item.classList.remove("active");
+                }
+            });
         });
     });
 
     filterBtnGenre.forEach(btn => {
         btn.addEventListener("click", function () {
-            if (this.disabled) return; // Do nothing if button is disabled
-            if (lastClickedBtnGenre) lastClickedBtnGenre.classList.remove("active");
+            filterByGenre(this.textContent);
+            filterBtnGenre.forEach(b => b.classList.remove("active"));
             this.classList.add("active");
-            lastClickedBtnGenre = this;
-            filterFunc(this.textContent, "genre");
+            if (selectValueGenre) selectValueGenre.textContent = this.textContent;
+            // Sync select dropdown
+            selectItemsGenre.forEach(item => {
+                if (item.textContent === this.textContent) {
+                    item.classList.add("active");
+                } else {
+                    item.classList.remove("active");
+                }
+            });
         });
     });
 
-    selectItemsType.forEach(item => { // item is the button inside li.select-item
+    selectItemsType.forEach(item => {
         item.addEventListener("click", function () {
-            if (this.disabled) return; // Do nothing if button is disabled
-            selectValueType.innerText = this.textContent;
-            filterFunc(this.textContent, "type");
-            elementToggleFunc(selectType); // Close dropdown
+            if (selectValueType) selectValueType.textContent = this.textContent;
+            filterByType(this.textContent);
+            if (selectType) elementToggleFunc(selectType);
+            // Sync desktop buttons
+            filterBtnType.forEach(btn => {
+                if (btn.textContent === this.textContent) {
+                    btn.classList.add("active");
+                } else {
+                    btn.classList.remove("active");
+                }
+            });
         });
     });
 
-    selectItemsGenre.forEach(item => { // item is the button inside li.select-item
+    selectItemsGenre.forEach(item => {
         item.addEventListener("click", function () {
-            if (this.disabled) return; // Do nothing if button is disabled
-            selectValueGenre.innerText = this.textContent;
-            filterFunc(this.textContent, "genre");
-            elementToggleFunc(selectGenre); // Close dropdown
+            if (selectValueGenre) selectValueGenre.textContent = this.textContent;
+            filterByGenre(this.textContent);
+            if (selectGenre) elementToggleFunc(selectGenre);
+            // Sync desktop buttons
+            filterBtnGenre.forEach(btn => {
+                if (btn.textContent === this.textContent) {
+                    btn.classList.add("active");
+                } else {
+                    btn.classList.remove("active");
+                }
+            });
         });
     });
 }
@@ -399,81 +409,134 @@ function addEventListenersToFilterButtons() {
 let currentFilterType = "Alle Typen";
 let currentFilterGenre = "Alle Genres";
 
-const filterFunc = function (selectedValue, filterCategory) {
-  if (filterCategory === 'type') {
-    currentFilterType = selectedValue;
-  } else if (filterCategory === 'genre') {
-    currentFilterGenre = selectedValue;
-  }
-  applyCurrentFiltersAndRefreshStates();
+const filterByType = function (type) {
+    currentFilterType = type;
+    applyFilters();
 };
 
-function applyCurrentFiltersAndRefreshStates() {
-  if (!filterItems || filterItems.length === 0) {
-    return;
-  }
+const filterByGenre = function (genre) {
+    currentFilterGenre = genre;
+    applyFilters();
+};
 
-  for (let i = 0; i < filterItems.length; i++) {
-    const projectItem = filterItems[i];
-    const projectType = projectItem.dataset.filterType.toLowerCase();
-    const projectGenre = projectItem.dataset.filterGenre.toLowerCase();
-
-    const typeMatch = currentFilterType === "Alle Typen" || projectType === currentFilterType.toLowerCase();
-    const genreMatch = currentFilterGenre === "Alle Genres" || projectGenre === currentFilterGenre.toLowerCase();
-
-    if (typeMatch && genreMatch) {
-      projectItem.classList.add("active");
-    } else {
-      projectItem.classList.remove("active");
+const applyFilters = function () {
+    if (!filterItems || filterItems.length === 0) {
+        console.warn("Keine Projektelemente zum Filtern vorhanden.");
+        return;
     }
-  }
-  updateFilterStates();
+
+    const normalizedFilterType = currentFilterType.toLowerCase();
+    const normalizedFilterGenre = currentFilterGenre.toLowerCase();
+
+    for (let i = 0; i < filterItems.length; i++) {
+        const item = filterItems[i];
+        const itemTypes = item.dataset.type.toLowerCase();
+        const itemGenres = item.dataset.genre.toLowerCase();
+
+        const typeMatch = normalizedFilterType === "alle typen" || itemTypes.includes(normalizedFilterType);
+        const genreMatch = normalizedFilterGenre === "alle genres" || itemGenres.includes(normalizedFilterGenre);
+
+        if (typeMatch && genreMatch) {
+            item.classList.add("active");
+        } else {
+            item.classList.remove("active");
+        }
+    }
+    updateFilterButtonsState(); // Update button states after filtering
+};
+
+function updateFilterButtonsState() {
+    const allProjectItems = Array.from(document.querySelectorAll(".project-item")); // Get all project items, not just currently filtered ones
+
+    // Update Type Filters
+    filterBtnType.forEach(btn => {
+        const typeValue = btn.textContent.toLowerCase();
+        if (typeValue === "alle typen") {
+            btn.classList.remove("disabled"); // "Alle Typen" should never be disabled
+            return;
+        }
+        const wouldHaveResults = allProjectItems.some(item => {
+            const itemTypes = item.dataset.type.toLowerCase();
+            const itemGenres = item.dataset.genre.toLowerCase();
+            const typeMatch = itemTypes.includes(typeValue);
+            const genreMatch = currentFilterGenre.toLowerCase() === "alle genres" || itemGenres.includes(currentFilterGenre.toLowerCase());
+            return typeMatch && genreMatch;
+        });
+        if (wouldHaveResults) {
+            btn.classList.remove("disabled");
+        } else {
+            btn.classList.add("disabled");
+        }
+    });
+    selectItemsType.forEach(item => { // Also update select items
+        const typeValue = item.textContent.toLowerCase();
+        if (typeValue === "alle typen") {
+            item.classList.remove("disabled");
+            return;
+        }
+        const wouldHaveResults = allProjectItems.some(projectItem => {
+            const itemTypes = projectItem.dataset.type.toLowerCase();
+            const itemGenres = projectItem.dataset.genre.toLowerCase();
+            const typeMatch = itemTypes.includes(typeValue);
+            const genreMatch = currentFilterGenre.toLowerCase() === "alle genres" || itemGenres.includes(currentFilterGenre.toLowerCase());
+            return typeMatch && genreMatch;
+        });
+        if (wouldHaveResults) {
+            item.classList.remove("disabled");
+        } else {
+            item.classList.add("disabled");
+        }
+    });
+
+
+    // Update Genre Filters
+    filterBtnGenre.forEach(btn => {
+        const genreValue = btn.textContent.toLowerCase();
+        if (genreValue === "alle genres") {
+            btn.classList.remove("disabled"); // "Alle Genres" should never be disabled
+            return;
+        }
+        const wouldHaveResults = allProjectItems.some(item => {
+            const itemTypes = item.dataset.type.toLowerCase();
+            const itemGenres = item.dataset.genre.toLowerCase();
+            const typeMatch = currentFilterType.toLowerCase() === "alle typen" || itemTypes.includes(currentFilterType.toLowerCase());
+            const genreMatch = itemGenres.includes(genreValue);
+            return typeMatch && genreMatch;
+        });
+        if (wouldHaveResults) {
+            btn.classList.remove("disabled");
+        } else {
+            btn.classList.add("disabled");
+        }
+    });
+    selectItemsGenre.forEach(item => { // Also update select items
+        const genreValue = item.textContent.toLowerCase();
+        if (genreValue === "alle genres") {
+            item.classList.remove("disabled");
+            return;
+        }
+        const wouldHaveResults = allProjectItems.some(projectItem => {
+            const itemTypes = projectItem.dataset.type.toLowerCase();
+            const itemGenres = projectItem.dataset.genre.toLowerCase();
+            const typeMatch = currentFilterType.toLowerCase() === "alle typen" || itemTypes.includes(currentFilterType.toLowerCase());
+            const genreMatch = itemGenres.includes(genreValue);
+            return typeMatch && genreMatch;
+        });
+        if (wouldHaveResults) {
+            item.classList.remove("disabled");
+        } else {
+            item.classList.add("disabled");
+        }
+    });
 }
 
-function updateFilterStates() {
-  if (allProjectsData.length === 0) return;
-
-  const allTypeButtons = document.querySelectorAll("[data-filter-btn-type], [data-select-item-type]");
-  const allGenreButtons = document.querySelectorAll("[data-filter-btn-genre], [data-select-item-genre]");
-
-  // Update Type Filters
-  allTypeButtons.forEach(button => {
-    const potentialType = button.textContent;
-    let count = 0;
-    if (potentialType === "Alle Typen") {
-        count = allProjectsData.filter(project =>
-            currentFilterGenre === "Alle Genres" || project.genre.toLowerCase() === currentFilterGenre.toLowerCase()
-        ).length;
-    } else {
-        count = allProjectsData.filter(project =>
-            project.type.toLowerCase() === potentialType.toLowerCase() &&
-            (currentFilterGenre === "Alle Genres" || project.genre.toLowerCase() === currentFilterGenre.toLowerCase())
-        ).length;
-    }
-    button.disabled = count === 0;
-  });
-
-  // Update Genre Filters
-  allGenreButtons.forEach(button => {
-    const potentialGenre = button.textContent;
-    let count = 0;
-    if (potentialGenre === "Alle Genres") {
-        count = allProjectsData.filter(project =>
-            currentFilterType === "Alle Typen" || project.type.toLowerCase() === currentFilterType.toLowerCase()
-        ).length;
-    } else {
-        count = allProjectsData.filter(project =>
-            project.genre.toLowerCase() === potentialGenre.toLowerCase() &&
-            (currentFilterType === "Alle Typen" || project.type.toLowerCase() === currentFilterType.toLowerCase())
-        ).length;
-    }
-    button.disabled = count === 0;
-  });
-}
 
 // Initial load functions
 window.addEventListener('load', () => {
   loadEvents();
-  loadProjects();
+  loadProjects().then(() => {
+    // Ensure applyFilters is called after projects and filterItems are fully initialized
+    applyFilters(); // This will also call updateFilterButtonsState
+  });
   loadTeamMembers();
 });
