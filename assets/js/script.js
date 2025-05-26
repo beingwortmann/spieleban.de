@@ -380,12 +380,18 @@ function addEventListenersToFilterButtons() {
 
     selectItemsType.forEach(item => {
         item.addEventListener("click", function () {
-            if (selectValueType) selectValueType.textContent = this.textContent;
-            filterByType(this.textContent);
-            if (selectType) elementToggleFunc(selectType);
+            const selectedValue = this.textContent;
+            if (selectValueType) selectValueType.textContent = selectedValue;
+            filterByType(selectedValue);
+            if (selectType) elementToggleFunc(selectType); // Close dropdown
+
+            // Set active state for this select item group
+            selectItemsType.forEach(si => si.classList.remove("active"));
+            this.classList.add("active");
+
             // Sync desktop buttons
             filterBtnType.forEach(btn => {
-                if (btn.textContent === this.textContent) {
+                if (btn.textContent === selectedValue) {
                     btn.classList.add("active");
                 } else {
                     btn.classList.remove("active");
@@ -396,12 +402,18 @@ function addEventListenersToFilterButtons() {
 
     selectItemsGenre.forEach(item => {
         item.addEventListener("click", function () {
-            if (selectValueGenre) selectValueGenre.textContent = this.textContent;
-            filterByGenre(this.textContent);
-            if (selectGenre) elementToggleFunc(selectGenre);
+            const selectedValue = this.textContent;
+            if (selectValueGenre) selectValueGenre.textContent = selectedValue;
+            filterByGenre(selectedValue);
+            if (selectGenre) elementToggleFunc(selectGenre); // Close dropdown
+
+            // Set active state for this select item group
+            selectItemsGenre.forEach(si => si.classList.remove("active"));
+            this.classList.add("active");
+
             // Sync desktop buttons
             filterBtnGenre.forEach(btn => {
-                if (btn.textContent === this.textContent) {
+                if (btn.textContent === selectedValue) {
                     btn.classList.add("active");
                 } else {
                     btn.classList.remove("active");
