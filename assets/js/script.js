@@ -288,12 +288,18 @@ function createFilterButton(value, category, container, isSelect = false, isActi
   const button = document.createElement("button");
   button.textContent = value;
   if (category === 'type') {
-    button.dataset.filterBtnType = true; // For desktop/button filters
-    if (isSelect) button.dataset.selectItemType = true; // For select/dropdown filters
+    if (isSelect) {
+      button.dataset.selectItemType = true; // For select/dropdown filters
+    } else {
+      button.dataset.filterBtnType = true; // For desktop/button filters
+    }
   }
   if (category === 'genre') {
-    button.dataset.filterBtnGenre = true; // For desktop/button filters
-    if (isSelect) button.dataset.selectItemGenre = true; // For select/dropdown filters
+    if (isSelect) {
+      button.dataset.selectItemGenre = true; // For select/dropdown filters
+    } else {
+      button.dataset.filterBtnGenre = true; // For desktop/button filters
+    }
   }
 
   if (isActive) {
