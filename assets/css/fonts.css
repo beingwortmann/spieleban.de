@@ -6,7 +6,7 @@
   font-family: 'Poppins';
   font-style: normal;
   font-weight: 300;
-  src: url('../fonts/poppins-v23-latin-300.woff2') format('woff2'); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+
+  src: url('../fonts/poppins-v23-latin-300.woff2') format('woff2'); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
 }
 /* poppins-regular - latin */
 @font-face {
@@ -14,7 +14,7 @@
   font-family: 'Poppins';
   font-style: normal;
   font-weight: 400;
-  src: url('../fonts/poppins-v23-latin-regular.woff2') format('woff2'); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+
+  src: url('../fonts/poppins-v23-latin-regular.woff2') format('woff2'); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
 }
 /* poppins-500 - latin */
 @font-face {
@@ -22,7 +22,7 @@
   font-family: 'Poppins';
   font-style: normal;
   font-weight: 500;
-  src: url('../fonts/poppins-v23-latin-500.woff2') format('woff2'); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+
+  src: url('../fonts/poppins-v23-latin-500.woff2') format('woff2'); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
 }
 /* poppins-600 - latin */
 @font-face {
@@ -30,7 +30,7 @@
   font-family: 'Poppins';
   font-style: normal;
   font-weight: 600;
-  src: url('../fonts/poppins-v23-latin-600.woff2') format('woff2'); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+
+  src: url('../fonts/poppins-v23-latin-600.woff2') format('woff2'); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
 }
 
 /* Material Symbols Outlined - (angenommener Dateiname, bitte anpassen!) */
@@ -38,6 +38,6 @@
   font-display: swap;
   font-family: 'Material Symbols Outlined';
   font-style: normal;
-  font-weight: 400; /* Typischerweise regular */
+  font-weight: 100 700; /* Typischerweise regular */
   src: url('../fonts/material-symbols-outlined-v245-latin-regular.woff2') format('woff2'); /* BITTE DATEINAMEN PRÜFEN UND ANPASSEN */
 }
