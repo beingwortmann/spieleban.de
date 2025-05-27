@@ -33,11 +33,11 @@
   src: url('../fonts/poppins-v23-latin-600.woff2') format('woff2'); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
 }
 
-/* Material Symbols Outlined - (angenommener Dateiname, bitte anpassen!) */
+/* Material Symbols Outlined */
 @font-face {
   font-display: swap;
   font-family: 'Material Symbols Outlined';
   font-style: normal;
-  font-weight: 100 700; /* Typischerweise regular */
-  src: url('../fonts/material-symbols-outlined-v245-latin-regular.woff2') format('woff2'); /* BITTE DATEINAMEN PRÜFEN UND ANPASSEN */
+  font-weight: 100 700;
+  src: url('../fonts/material-symbols-outlined-v245-latin-regular.woff2') format('woff2');
 }
