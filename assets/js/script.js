@@ -74,25 +74,64 @@ if (form) {
   }
 }
 
-form.addEventListener("submit", function (e) {
+form.addEventListener("submit", async function (e) {
   e.preventDefault(); 
 
-
   if (form.checkValidity()) {
-
-    successMessage.style.display = "block";
-
-
-    formInputs.forEach(input => {
-      if (input.value) {
-        input.value = ''; 
-      }
+    const formData = new FormData(form);
+    const formObject = {};
+    formData.forEach((value, key) => {
+      // Map your form input names to the keys Formbee expects, if necessary.
+      // For example, if your HTML input is name="fullname", and Formbee expects "name":
+      // if (key === 'fullname') formObject['name'] = value;
+      // else formObject[key] = value;
+      // For now, we'll assume direct mapping:
+      formObject[key] = value;
     });
 
+    // IMPORTANT: Replace [api-key] with your actual FormBee API key
+    const formbeeEndpoint = 'https://api.formbee.dev/formbee/39d30e48-289f-41cc-a73e-7fe674693269';
 
+    try {
+      const response = await fetch(formbeeEndpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formObject),
+      });
+
+      if (response.ok) {
+        successMessage.textContent = "Deine Nachricht wurde erfolgreich versendet!";
+        successMessage.style.color = "green"; // Or your theme's success color
+        successMessage.style.display = "block";
+        form.reset(); // Clear form fields
+        if (formBtn) formBtn.setAttribute("disabled", ""); // Disable button again after successful submission
+
+        setTimeout(() => {
+          successMessage.style.display = 'none';
+        }, 20000); 
+      } else {
+        const errorData = await response.json().catch(() => null); // Try to parse error, but don't fail if no JSON
+        console.error("Form submission failed:", response.status, errorData);
+        successMessage.textContent = "Fehler beim Senden des Formulars. Bitte versuche es später erneut.";
+        successMessage.style.color = "red"; // Or your theme's error color
+        successMessage.style.display = "block";
+      }
+    } catch (err) {
+      console.error('Error submitting form to FormBee:', err);
+      successMessage.textContent = "Ein Netzwerkfehler ist aufgetreten. Bitte versuche es später erneut.";
+      successMessage.style.color = "red"; // Or your theme's error color
+      successMessage.style.display = "block";
+    }
+  } else {
+    // Handle invalid form case - e.g., show a general error or rely on browser validation
+    successMessage.textContent = "Bitte fülle alle erforderlichen Felder korrekt aus.";
+    successMessage.style.color = "red";
+    successMessage.style.display = "block";
     setTimeout(() => {
       successMessage.style.display = 'none';
-    }, 20000); 
+    }, 5000);
   }
 });
 
@@ -517,9 +556,7 @@ function updateFilterButtonsState() {
         // }
         // const wouldHaveResults = allProjectItems.some(item => {
         //     const itemTypes = item.dataset.type.toLowerCase();
-        //     const itemGenres = item.dataset.genre.toLowerCase();
-        //     const typeMatch = itemTypes.includes(typeValue);
-        //     const genreMatch = currentFilterGenre.toLowerCase() === "alle genres" || itemGenres.includes(currentFilterGenre.toLowerCase());
+        //     const itemGenres = currentFilterGenre.toLowerCase() === "alle genres" || itemGenres.includes(currentFilterGenre.toLowerCase());
         //     return typeMatch && genreMatch;
         // });
         // if (wouldHaveResults) {
