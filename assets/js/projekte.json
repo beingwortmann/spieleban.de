@@ -20,7 +20,7 @@
   {
     "id": "packgammon",
     "name": "Packgammon",
-    "image": "./assets/images/project-3.jpg",
+    "image": "./assets/images/project-3.png",
     "types": ["Kenner- und Expertenspiel"],
     "genres": ["Abstraktes Spiel"],
     "description": "Ein modernes Update des Klassikers Backgammon.",
